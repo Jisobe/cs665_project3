@@ -76,7 +76,7 @@ provider table
 | created_at | TIMESTAMP | NOT NULL, DEFAULT CURRENT_TIMESTAMP |
 | updated_at | TIMESTAMP | NOT NULL, DEFAULT CURRENT_TIMESTAMP, ON UPDATE CURRENT_TIMESTAMP |
 
-Specialty would be better classified by the healthcare provider taxonomy code. Since each provider can have more than one specialty, it makes sense to have the provider specialty table have a composite primary key of the NPI and HPTC
+Specialty would be better classified by the healthcare provider taxonomy code, which are nationally unique and regulated codes for different specialties. Since each provider can have more than one specialty, it makes sense to have the provider specialty table have a composite primary key of the NPI and HPTC
 
 provider table
 
@@ -97,7 +97,7 @@ providerSpecialty table
 | national_provider_identifier | VARCHAR(10) | PRIMARY KEY, FK: provider(national_provider_identifier) |
 | healthcare_provider_taxonomy_code | VARCHAR(10) | PRIMARY KEY |
 
-A provider could have state licenses from different states and states may reuse the same license number. So, issue state for the state license should be added as an attribute to clarify what state the license is from. Because the issue state is not depended on the NPI, the state license information should be moved to its own table.
+A provider will only ever have one state license in a given state but could have state licenses from different states. Additionally, states may reuse the same license number. So, issue state for the state license should be added as an attribute to clarify what state the license is from. Because the issue state is not depended on the NPI, the state license information should be moved to its own table.
 
 provider table
 
@@ -127,7 +127,7 @@ The functional dependencies are now
 
 national_provider_identifier, healthcare_provider_taxonomy_code -> None
 
-national_provider_identifier and healthcare_provider_taxonomy_code are superkeys
+national_provider_identifier and healthcare_provider_taxonomy_code together are a superkey
 
 providerStateLicense table
 
@@ -141,7 +141,7 @@ The functional dependencies are now
 
 issue_state, national_provider_identifier -> state_license
 
-issue_state and national_provider_identifier are super keys
+issue_state and national_provider_identifier together are superkey
 
 Insertion anomaly: Not able to insert a row into the state license without having a provider with a national_provider_identifier already existing.
 
