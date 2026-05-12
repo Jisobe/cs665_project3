@@ -31,6 +31,9 @@ def validate_patient(data):
     elif len(last_name)>50:
         errors.append("Invalid Length: Last name cannot have more that 50 characters")
 
+    if not email and not phone_number:
+        errors.append("Missing Contact Information: Patient requires at least one contact method")
+
     if email and not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", email):
         errors.append("Invalid Entry: Email address is not valid")
 
@@ -211,12 +214,6 @@ def validate_icd(data):
         errors.append("Missing Required Field: ICD code")
 
     return errors
-
-#Diagnosis
-    # diagnosis_id=db.Column(db.String(20), primary_key=True)
-    # patient_id=db.Column(db.String(20), db.ForeignKey("patient.patient_id", ondelete="RESTRICT"), nullable=False)
-    # icd_code=db.Column(db.String(20), db.ForeignKey("icd.icd_code"), nullable=False)
-    # status=db.Column(db.String(20))
 
 def validate_diagnosis(data):
     errors=[]

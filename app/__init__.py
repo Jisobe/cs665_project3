@@ -1,4 +1,3 @@
-import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import event
@@ -14,25 +13,19 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
         cursor.execute("PRAGMA foreign_keys=ON")
         cursor.close()
 
-def create_app(test_config=None):
-
-    app = Flask(__name__, instance_relative_config=True)
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///healthapp.db"
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
-    if test_config is None:
-        app.config.from_pyfile('config.py', silent=True)
-    else:
-        app.config.from_mapping(test_config)
-
-    os.makedirs(app.instance_path, exist_ok=True)
+def create_app():
+    app=Flask(__name__, instance_relative_config=True)
+    app.config["SQLALCHEMY_DATABASE_URI"]="sqlite:///health.db"
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"]=False
 
     db.init_app(app)
 
-    from .routes import main
-    app.register_blueprint(main)
+    from .blueprints.patients import patients_bp
+
+    app.register_blueprint(patients_bp, url_prefix="/patients")
 
     with app.app_context():
+        from . import models
         db.create_all()
 
     return app
