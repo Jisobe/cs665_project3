@@ -4,9 +4,9 @@ from ..validators import validate_patient, validate_diagnosis
 from ..models import Patient, Diagnosis
 from sqlalchemy.exc import IntegrityError
 
-patients_bp=Blueprint("patients", __name__)
+patients_bp=Blueprint("patients", __name__, url_prefix="/patients")
 
-@patients_bp.route("/", methods=["POST"])
+@patients_bp.route("/create", methods=["POST"])
 def create_patient():
     data=request.get_json()
     errors=validate_patient(data)
@@ -18,7 +18,7 @@ def create_patient():
     db.session.commit()
     return jsonify({"patient_id": patient.patient_id}), 201
 
-@patients_bp.route("/", methods=["GET"])
+@patients_bp.route("/all", methods=["GET"])
 def get_patients():
     patients=Patient.query.all()
     return jsonify([
@@ -102,3 +102,17 @@ def create_patient_diagnoses(patient_id):
     db.session.add(diagnosis)
     db.session.commit()
     return jsonify({"diagnosis_id": diagnosis.diagnosis_id}), 201
+
+@patients_bp.route("/<patient_id>/diagnosis", methods=["DELETE"])
+def delete_patient_diagnosis(patient_id, diagnosis_id):
+    patient=db.get_or_404(Patient, patient_id)
+    if diagnosis_id not in patient["diagnosis"]:
+        return jsonify({"error": "Unable to delete patient diagnosis. No such diagnosis for this patient"}), 409
+    diagnosis=db.get_or_404(Diagnosis, diagnosis_id)
+    try:
+        db.session.delete(diagnosis)
+        db.session.commit()
+        return "", 204
+    except IntegrityError as e:
+        db.session.rollback()
+        return jsonify({"error": "Unable to delete diagnosis", "detail": str(e)}), 409
