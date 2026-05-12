@@ -13,6 +13,8 @@ STATES=[
     "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington",
     "West Virginia", "Wisconsin", "Wyoming"]
 
+STATUS=["active", "resolved", "chronic", "remission", "acute", "suspended"]
+
 def validate_patient(data):
     errors=[]
     dob=data.get("date_of_birth")
@@ -229,3 +231,5 @@ def validate_diagnosis(data):
 
     if not status:
         errors.append("Missing Required Field: Status")
+    elif status.lower() not in STATUS:
+        errors.append("Invalid Entry: Diagnosis status is not valid")
