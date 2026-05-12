@@ -40,9 +40,9 @@ This report provides an analysis for the relational database for the healthcare 
 | Column | Type | Constraints |
 | --- | --- | --- |
 | patient_id | VARCHAR(20) | PRIMARY KEY |
-| date_of_birth | DATE | |
-| first_name | VARCHAR(50) | |
-| last_name | VARCHAR(50) | |
+| date_of_birth | DATE | NOT NULL |
+| first_name | VARCHAR(50) | NOT NULL |
+| last_name | VARCHAR(50) | NOT NULL |
 | email | VARCHAR(100) | |
 | phone_number | VARCHAR(20) | |
 | created_at | TIMESTAMP | NOT NULL, DEFAULT CURRENT_TIMESTAMP |
@@ -68,12 +68,12 @@ The original table is already in BCNF, patient_id is a superkey.
 | Column | Type | Constraints |
 | --- | --- | --- |
 | provider_id | VARCHAR(20) | PRIMARY KEY |
-| first_name | VARCHAR(50) | |
-| last_name | VARCHAR(50) | |
+| first_name | VARCHAR(50) | NOT NULL |
+| last_name | VARCHAR(50) | NOT NULL |
 | specialty | VARCHAR(25) | |
 | state_license | VARCHAR(20) | NOT NULL |
 | national_provider_identifier | VARCHAR(10) | NOT NULL |
-| phone_number | VARCHAR(20) | |
+| phone_number | VARCHAR(20) |  NOT NULL |
 | created_at | TIMESTAMP | NOT NULL, DEFAULT CURRENT_TIMESTAMP |
 | updated_at | TIMESTAMP | NOT NULL, DEFAULT CURRENT_TIMESTAMP, ON UPDATE CURRENT_TIMESTAMP |
 
@@ -99,11 +99,11 @@ provider table
 | Column | Type | Constraints |
 | --- | --- | --- |
 | national_provider_identifier | VARCHAR(10) | PRIMARY KEY |
-| first_name | VARCHAR(50) | |
-| last_name | VARCHAR(50) | |
+| first_name | VARCHAR(50) | NOT NULL |
+| last_name | VARCHAR(50) | NOT NULL |
 | specialty | VARCHAR(25) | |
 | state_license | VARCHAR(20) | NOT NULL |
-| phone_number | VARCHAR(20) | |
+| phone_number | VARCHAR(20) | NOT NULL |
 | created_at | TIMESTAMP | NOT NULL, DEFAULT CURRENT_TIMESTAMP |
 | updated_at | TIMESTAMP | NOT NULL, DEFAULT CURRENT_TIMESTAMP, ON UPDATE CURRENT_TIMESTAMP |
 
@@ -114,10 +114,10 @@ provider table
 | Column | Type | Constraints |
 | --- | --- | --- |
 | national_provider_identifier | VARCHAR(10) | PRIMARY KEY |
-| first_name | VARCHAR(50) | |
-| last_name | VARCHAR(50) | |
+| first_name | VARCHAR(50) | NOT NULL |
+| last_name | VARCHAR(50) | NOT NULL |
 | state_license | VARCHAR(20) | NOT NULL |
-| phone_number | VARCHAR(20) | |
+| phone_number | VARCHAR(20) | NOT NULL |
 | created_at | TIMESTAMP | NOT NULL, DEFAULT CURRENT_TIMESTAMP |
 | updated_at | TIMESTAMP | NOT NULL, DEFAULT CURRENT_TIMESTAMP, ON UPDATE CURRENT_TIMESTAMP |
 
@@ -135,9 +135,9 @@ provider table
 | Column | Type | Constraints |
 | --- | --- | --- |
 | national_provider_identifier | VARCHAR(10) | PRIMARY KEY |
-| first_name | VARCHAR(50) | |
-| last_name | VARCHAR(50) | |
-| phone_number | VARCHAR(20) | |
+| first_name | VARCHAR(50) | NOT NULL |
+| last_name | VARCHAR(50) | NOT NULL |
+| phone_number | VARCHAR(20) | NOT NULL |
 | created_at | TIMESTAMP | NOT NULL, DEFAULT CURRENT_TIMESTAMP |
 | updated_at | TIMESTAMP | NOT NULL, DEFAULT CURRENT_TIMESTAMP, ON UPDATE CURRENT_TIMESTAMP |
 
@@ -185,8 +185,8 @@ Insertion anomaly: Not able to insert a row into the state license without havin
 | visit_id | VARCHAR(20) | PRIMARY KEY |
 | patient_id | VARCHAR(20) | NOT NULL, FK: patient(patient_id) |
 | provider_id | VARCHAR(20) | NOT NULL, FK: provider(provider_id) |
-| visit_date | DATETIME | |
-| visit_reason | TEXT | |
+| visit_date | DATETIME | NOT NULL |
+| visit_reason | TEXT | NOT NULL |
 | notes | TEXT | |
 | created_at | TIMESTAMP | NOT NULL, DEFAULT CURRENT_TIMESTAMP |
 | updated_at | TIMESTAMP | NOT NULL, DEFAULT CURRENT_TIMESTAMP, ON UPDATE CURRENT_TIMESTAMP |
@@ -210,8 +210,8 @@ The original table is already in BCNF, visit_id is a superkey. But because the p
 | visit_id | VARCHAR(20) | PRIMARY KEY |
 | patient_id | VARCHAR(20) | NOT NULL, FK: patient(patient_id) |
 | national_provider_identifier | VARCHAR(10) | NOT NULL, FK: provider(national_provider_identifier) |
-| visit_date | DATETIME | |
-| visit_reason | TEXT | |
+| visit_date | DATETIME | NOT NULL |
+| visit_reason | TEXT | NOT NULL |
 | notes | TEXT | |
 | created_at | TIMESTAMP | NOT NULL, DEFAULT CURRENT_TIMESTAMP |
 | updated_at | TIMESTAMP | NOT NULL, DEFAULT CURRENT_TIMESTAMP, ON UPDATE CURRENT_TIMESTAMP |
@@ -236,7 +236,7 @@ visit_id is still a superkey
 | temperature | FLOAT | |
 | heart_rate | INT | |
 | pain_level | INT | CHECK (0–10) |
-| recorded_by | VARCHAR(100) | |
+| recorded_by | VARCHAR(100) | NOT NULL |
 | created_at | TIMESTAMP | NOT NULL, DEFAULT CURRENT_TIMESTAMP |
 
 ### vitals Table Functional dependencies
@@ -269,7 +269,7 @@ vitals table
 | temperature | FLOAT | |
 | heart_rate | INT | |
 | pain_level | INT | CHECK (0–10) |
-| recorded_by | VARCHAR(100) | |
+| recorded_by | VARCHAR(100) | NOT NULL |
 | created_at | TIMESTAMP | NOT NULL, DEFAULT CURRENT_TIMESTAMP |
 
 The functional dependencies are now
@@ -286,9 +286,9 @@ vitals_id is a superkey
 | --- | --- | --- |
 | diagnosis_id | VARCHAR(20) | PRIMARY KEY |
 | visit_id | VARCHAR(20) | NOT NULL, FK: visit(visit_id) |
-| icd_code | VARCHAR(20) | |
+| icd_code | VARCHAR(20) | NOT NULL |
 | description | TEXT | |
-| status | VARCHAR(20) | |
+| status | VARCHAR(20) | NOT NULL |
 | created_at | TIMESTAMP | NOT NULL, DEFAULT CURRENT_TIMESTAMP |
 | updated_at | TIMESTAMP | NOT NULL, DEFAULT CURRENT_TIMESTAMP, ON UPDATE CURRENT_TIMESTAMP |
 
@@ -315,8 +315,8 @@ diagnosis Table
 | --- | --- | --- |
 | diagnosis_id | VARCHAR(20) | PRIMARY KEY |
 | patient_id | VARCHAR(20) | NOT NULL, FK: patient(patient_id) |
-| icd_code | VARCHAR(20) | FK: icd(icd_code |
-| status | VARCHAR(20) | |
+| icd_code | VARCHAR(20) | NOT NULL, FK: icd(icd_code |
+| status | VARCHAR(20) | NOT NULL |
 | created_at | TIMESTAMP | NOT NULL, DEFAULT CURRENT_TIMESTAMP |
 | updated_at | TIMESTAMP | NOT NULL, DEFAULT CURRENT_TIMESTAMP, ON UPDATE CURRENT_TIMESTAMP |
 
@@ -348,9 +348,9 @@ patient Table
 | Column | Type | Constraints |
 | --- | --- | --- |
 | patient_id | VARCHAR(20) | PRIMARY KEY |
-| date_of_birth | DATE | |
-| first_name | VARCHAR(50) | |
-| last_name | VARCHAR(50) | |
+| date_of_birth | DATE | NOT NULL |
+| first_name | VARCHAR(50) | NOT NULL |
+| last_name | VARCHAR(50) | NOT NULL |
 | email | VARCHAR(100) | |
 | phone_number | VARCHAR(20) | |
 | created_at | TIMESTAMP | NOT NULL, DEFAULT CURRENT_TIMESTAMP |
@@ -361,9 +361,9 @@ provider table
 | Column | Type | Constraints |
 | --- | --- | --- |
 | national_provider_identifier | VARCHAR(10) | PRIMARY KEY |
-| first_name | VARCHAR(50) | |
-| last_name | VARCHAR(50) | |
-| phone_number | VARCHAR(20) | |
+| first_name | VARCHAR(50) | NOT NULL |
+| last_name | VARCHAR(50) | NOT NULL |
+| phone_number | VARCHAR(20) | NOT NULL |
 | created_at | TIMESTAMP | NOT NULL, DEFAULT CURRENT_TIMESTAMP |
 | updated_at | TIMESTAMP | NOT NULL, DEFAULT CURRENT_TIMESTAMP, ON UPDATE CURRENT_TIMESTAMP |
 
@@ -389,8 +389,8 @@ visit Table
 | visit_id | VARCHAR(20) | PRIMARY KEY |
 | patient_id | VARCHAR(20) | NOT NULL, FK: patient(patient_id) |
 | national_provider_identifier | VARCHAR(10) | NOT NULL, FK: provider(national_provider_identifier ) |
-| visit_date | DATETIME | |
-| visit_reason | TEXT | |
+| visit_date | DATETIME | NOT NULL |
+| visit_reason | TEXT | NOT NULL |
 | notes | TEXT | |
 | created_at | TIMESTAMP | NOT NULL, DEFAULT CURRENT_TIMESTAMP |
 | updated_at | TIMESTAMP | NOT NULL, DEFAULT CURRENT_TIMESTAMP, ON UPDATE CURRENT_TIMESTAMP |
@@ -408,7 +408,7 @@ vitals table
 | temperature | FLOAT | |
 | heart_rate | INT | |
 | pain_level | INT | CHECK (0–10) |
-| recorded_by | VARCHAR(100) | |
+| recorded_by | VARCHAR(100) | NOT NULL |
 | created_at | TIMESTAMP | NOT NULL, DEFAULT CURRENT_TIMESTAMP |
 
 diagnosis Table
@@ -417,8 +417,8 @@ diagnosis Table
 | --- | --- | --- |
 | diagnosis_id | VARCHAR(20) | PRIMARY KEY |
 | patient_id | VARCHAR(20) | NOT NULL, FK: patient(patient_id) |
-| icd_code | VARCHAR(20) | FK: icd(icd_code |
-| status | VARCHAR(20) | |
+| icd_code | VARCHAR(20) | NOT NULL, FK: icd(icd_code |
+| status | VARCHAR(20) | NOT NULL |
 | created_at | TIMESTAMP | NOT NULL, DEFAULT CURRENT_TIMESTAMP |
 | updated_at | TIMESTAMP | NOT NULL, DEFAULT CURRENT_TIMESTAMP, ON UPDATE CURRENT_TIMESTAMP |
 
