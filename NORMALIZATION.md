@@ -2,6 +2,37 @@
 
 This report provides an analysis for the relational database for the healthcare charting application. The goal is to create and maintain a database in Boyce-Codd Normal Form (BCNF).
 
+## Table of Contents
+
+- [Normalization Audit Report](#normalization-audit-report)
+  - [Table of Contents](#table-of-contents)
+  - [patient](#patient)
+    - [patient Original Table](#patient-original-table)
+    - [patient Table Functional Dependencies](#patient-table-functional-dependencies)
+    - [patient Anomalies](#patient-anomalies)
+    - [patient Decomposition](#patient-decomposition)
+  - [provider](#provider)
+    - [provider Original Table](#provider-original-table)
+    - [provider Table Functional dependencies](#provider-table-functional-dependencies)
+    - [provider Anomalies](#provider-anomalies)
+    - [provider Decomposition](#provider-decomposition)
+  - [visit](#visit)
+    - [visit Original Table](#visit-original-table)
+    - [visit Table Functional dependencies](#visit-table-functional-dependencies)
+    - [visit Anomalies](#visit-anomalies)
+    - [visit Decomposition](#visit-decomposition)
+  - [vitals](#vitals)
+    - [vitals Original Table](#vitals-original-table)
+    - [vitals Table Functional dependencies](#vitals-table-functional-dependencies)
+    - [vitals Anomalies](#vitals-anomalies)
+    - [vitals Decomposition](#vitals-decomposition)
+  - [diagnosis](#diagnosis)
+    - [diagnosis Original Table](#diagnosis-original-table)
+    - [diagnosis Table Functional dependencies](#diagnosis-table-functional-dependencies)
+    - [diagnosis Anomalies](#diagnosis-anomalies)
+    - [diagnosis Decomposition](#diagnosis-decomposition)
+  - [Final Schema](#final-schema)
+
 ## patient
 
 ### patient Original Table
@@ -17,14 +48,14 @@ This report provides an analysis for the relational database for the healthcare 
 | created_at | TIMESTAMP | NOT NULL, DEFAULT CURRENT_TIMESTAMP |
 | updated_at | TIMESTAMP | NOT NULL, DEFAULT CURRENT_TIMESTAMP, ON UPDATE CURRENT_TIMESTAMP |
 
-### patient Table Functional dependencies
+### patient Table Functional Dependencies
 
-* patient_id -> date_of_birth, first_name, last_name, email, phone_number, created_at, updated_at
+- patient_id -> date_of_birth, first_name, last_name, email, phone_number, created_at, updated_at
 
 ### patient Anomalies
 
-* Insertion: Inserting a patient without any email or phone number could result in an inability to contact the patient
-* Deletion: Deleting a patient row could result in the foreign key to patient_id in the visit table losing its relationship, creating issues with data retrieval and relationships if the deletion is not handled properly
+- Insertion: Inserting a patient without any email or phone number could result in an inability to contact the patient
+- Deletion: Deleting a patient row could result in the foreign key to patient_id in the visit table losing its relationship, creating issues with data retrieval and relationships if the deletion is not handled properly
 
 ### patient Decomposition
 
@@ -48,14 +79,14 @@ The original table is already in BCNF, patient_id is a superkey.
 
 ### provider Table Functional dependencies
 
-* provider_id -> first_name, last_name, specialty, state_license, national_provider_identifier, phone_number, created_at, updated_at
-* national_provider_identifier -> provider_id, first_name, last_name, specialty, state_license, phone_number
+- provider_id -> first_name, last_name, specialty, state_license, national_provider_identifier, phone_number, created_at, updated_at
+- national_provider_identifier -> provider_id, first_name, last_name, specialty, state_license, phone_number
 
 ### provider Anomalies
 
-* Update: National provider identifier was not made unique so if the same provider is added to the table under different provider_ids to account for different specialties, if the NPI is updated in one row but not the other there is an inconsistency created.
-* Insertion: Inserting a provider without a state license or NPI would risk allowing providers with no license to practice.
-* Deletion: Deleting a provider row could result in the foreign key to provider_id in the visit table losing its relationship, creating issues with data retrieval and relationships if the deletion is not handled properly
+- Update: National provider identifier was not made unique so if the same provider is added to the table under different provider_ids to account for different specialties, if the NPI is updated in one row but not the other there is an inconsistency created.
+- Insertion: Inserting a provider without a state license or NPI would risk allowing providers with no license to practice.
+- Deletion: Deleting a provider row could result in the foreign key to provider_id in the visit table losing its relationship, creating issues with data retrieval and relationships if the deletion is not handled properly
 
 ### provider Decomposition
 
@@ -162,13 +193,13 @@ Insertion anomaly: Not able to insert a row into the state license without havin
 
 ### visit Table Functional dependencies
 
-* visit_id -> patient_id, provider_id, visit_date, visit_reason, notes, created_at, updated_at
+- visit_id -> patient_id, provider_id, visit_date, visit_reason, notes, created_at, updated_at
 
 ### visit Anomalies
 
-* Update: Updating the patient_id or provider_id in the patient or provider table but not updating it in the visit table would break the foreign key relationship between the tables.
-* Insertion: Inserting a visit without a patient_id and provider_id breaks the foreign key constraint and would cause issues with being able to identify who the visit was for and who it was with.
-* Deletion: Deleting a row from visits affects the foreign key in both vitals and diagnosis. This could create data retrieval and relationship issues if not handles properly.
+- Update: Updating the patient_id or provider_id in the patient or provider table but not updating it in the visit table would break the foreign key relationship between the tables.
+- Insertion: Inserting a visit without a patient_id and provider_id breaks the foreign key constraint and would cause issues with being able to identify who the visit was for and who it was with.
+- Deletion: Deleting a row from visits affects the foreign key in both vitals and diagnosis. This could create data retrieval and relationship issues if not handles properly.
 
 ### visit Decomposition
 
@@ -210,14 +241,14 @@ visit_id is still a superkey
 
 ### vitals Table Functional dependencies
 
-* vitals_id -> visit_id, height, weight, bmi, systolic, diastolic, temperature, heart_rate, pain_level, recorded_by, created_at
-* height, weight -> bmi
+- vitals_id -> visit_id, height, weight, bmi, systolic, diastolic, temperature, heart_rate, pain_level, recorded_by, created_at
+- height, weight -> bmi
 
 ### vitals Anomalies
 
-* Update: If either height or weight is changed but bmi is not updated, there will be inaccurate data in the values.
-* Insertion: Inserting vitals record without a visit_id breaks the foreign key constraint between the vitals and visit tables and would result in not being able to tell what patient the vitals are for. Inserting a vitals row with height and weight but no bmi.
-* Deletion: Deleting a vitals row removes it's relationship to the visit table meaning a visit could lose important patient data.
+- Update: If either height or weight is changed but bmi is not updated, there will be inaccurate data in the values.
+- Insertion: Inserting vitals record without a visit_id breaks the foreign key constraint between the vitals and visit tables and would result in not being able to tell what patient the vitals are for. Inserting a vitals row with height and weight but no bmi.
+- Deletion: Deleting a vitals row removes it's relationship to the visit table meaning a visit could lose important patient data.
 
 ### vitals Decomposition
 
@@ -263,27 +294,27 @@ vitals_id is a superkey
 
 ### diagnosis Table Functional dependencies
 
-* diagnosis_id -> visit_id, icd_code, description, status, created_at, updated_at
-* icd_code -> description
+- diagnosis_id -> visit_id, icd_code, description, status, created_at, updated_at
+- icd_code -> description
 
 ### diagnosis Anomalies
 
-* Update: Updating the description for one row and then not updating the description for another row with the same icd code would lead to inconsistencies.
-* Insertion: Inserting a diagnosis with no visit_id would mean that the diagnosis will not be able to be tied to a patient or the provider that give the diagnosis.
-* Deletion: Deleting all of the rows with a certain ICD would mean the loss of the information for the ICD and description
+- Update: Updating the description for one row and then not updating the description for another row with the same icd code would lead to inconsistencies.
+- Insertion: Inserting a diagnosis with no visit_id would mean that the diagnosis will not be able to be tied to a patient or the provider that give the diagnosis.
+- Deletion: Deleting all of the rows with a certain ICD would mean the loss of the information for the ICD and description
 
 ### diagnosis Decomposition
 
 The original table is not in BCNF.
 
-Since the description is based on the ICD, ICD and description should be pulled out into a new table with ICD as the primary key.
+Since the description is based on the ICD, ICD and description should be pulled out into a new table with ICD as the primary key. Additionally, it makes more sense to have the diagnosis tied to the patient rather than a particular visit.
 
 diagnosis Table
 
 | Column | Type | Constraints |
 | --- | --- | --- |
 | diagnosis_id | VARCHAR(20) | PRIMARY KEY |
-| visit_id | VARCHAR(20) | NOT NULL, FK: visit(visit_id) |
+| patient_id | VARCHAR(20) | NOT NULL, FK: patient(patient_id) |
 | icd_code | VARCHAR(20) | FK: icd(icd_code |
 | status | VARCHAR(20) | |
 | created_at | TIMESTAMP | NOT NULL, DEFAULT CURRENT_TIMESTAMP |
@@ -291,7 +322,7 @@ diagnosis Table
 
 The functional dependencies are now
 
-diagnosis_id -> visit_id, icd_code, status, created_at, updated_at
+diagnosis_id -> patient_id, icd_code, status, created_at, updated_at
 
 diagnosis_id is a superkey
 
@@ -385,7 +416,7 @@ diagnosis Table
 | Column | Type | Constraints |
 | --- | --- | --- |
 | diagnosis_id | VARCHAR(20) | PRIMARY KEY |
-| visit_id | VARCHAR(20) | NOT NULL, FK: visit(visit_id) |
+| patient_id | VARCHAR(20) | NOT NULL, FK: patient(patient_id) |
 | icd_code | VARCHAR(20) | FK: icd(icd_code |
 | status | VARCHAR(20) | |
 | created_at | TIMESTAMP | NOT NULL, DEFAULT CURRENT_TIMESTAMP |
