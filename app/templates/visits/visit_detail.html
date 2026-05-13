@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}Visit {{ visit.visit_id }} — HealthChart{% endblock %}
+{% block page_title %}Visit Detail{% endblock %}
+
+{% block topbar_actions %}
+  <a href="{{ url_for('visits.edit_visit_form', visit_id=visit.visit_id) }}"
+     class="btn btn-outline btn-sm">Edit</a>
+  <form method="POST"
+        action="{{ url_for('visits.delete_visit', visit_id=visit.visit_id) }}"
+        style="display:inline"
+        onsubmit="return confirm('Delete this visit and all associated vitals?')">
+    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+  </form>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h2>Visit {{ visit.visit_id }}</h2>
+    <div class="subtitle">{{ visit.visit_date or 'Date not recorded' }}</div>
+  </div>
+  <a href="{{ url_for('visits.record_vitals_form', visit_id=visit.visit_id) }}"
+     class="btn btn-primary">+ Record Vitals</a>
+</div>
+
+<!-- Visit info -->
+<div class="card" style="margin-bottom:1.25rem;">
+  <div class="card-header"><span class="card-title">Visit Information</span></div>
+  <div class="detail-grid">
+    <div class="detail-item">
+      <div class="detail-label">Patient</div>
+      <div class="detail-value">
+        <a href="{{ url_for('patients.get_patient', patient_id=visit.patient_id) }}"
+           style="color: var(--lavender);">{{ visit.patient_id }}</a>
+      </div>
+    </div>
+    <div class="detail-item">
+      <div class="detail-label">Provider NPI</div>
+      <div class="detail-value td-mono">{{ visit.national_provider_identifier }}</div>
+    </div>
+    <div class="detail-item">
+      <div class="detail-label">Visit Date</div>
+      <div class="detail-value">{{ visit.visit_date or '—' }}</div>
+    </div>
+  </div>
+
+  {% if visit.visit_reason %}
+  <div style="margin-top:1rem; padding-top:1rem; border-top:1px solid var(--border-soft);">
+    <div class="detail-label" style="font-family:var(--font-mono);font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">
+      Reason for Visit
+    </div>
+    <p style="font-size:0.9rem; color:var(--text-primary);">{{ visit.visit_reason }}</p>
+  </div>
+  {% endif %}
+
+  {% if visit.notes %}
+  <div style="margin-top:1rem; padding-top:1rem; border-top:1px solid var(--border-soft);">
+    <div class="detail-label" style="font-family:var(--font-mono);font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">
+      Notes
+    </div>
+    <p style="font-size:0.875rem; color:var(--text-secondary); white-space:pre-line;">{{ visit.notes }}</p>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Vitals -->
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">Vitals ({{ vitals | length }})</span>
+  </div>
+  {% if vitals %}
+    {% for v in vitals %}
+    <div style="margin-bottom:1rem; padding-bottom:1rem; border-bottom:1px solid var(--border-soft);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+        <span style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text-muted);">
+          Recorded by {{ v.recorded_by or 'Unknown' }} &middot; {{ v.created_at }}
+        </span>
+      </div>
+      <div class="vitals-grid">
+        {% if v.height %}
+        <div class="vital-chip">
+          <div class="vk">Height</div>
+          <div class="vv">{{ v.height }}</div>
+          <div class="vu">in</div>
+        </div>
+        {% endif %}
+        {% if v.weight %}
+        <div class="vital-chip">
+          <div class="vk">Weight</div>
+          <div class="vv">{{ v.weight }}</div>
+          <div class="vu">lbs</div>
+        </div>
+        {% endif %}
+        {% if v.systolic and v.diastolic %}
+        <div class="vital-chip">
+          <div class="vk">BP</div>
+          <div class="vv">{{ v.systolic }}/{{ v.diastolic }}</div>
+          <div class="vu">mmHg</div>
+        </div>
+        {% endif %}
+        {% if v.heart_rate %}
+        <div class="vital-chip">
+          <div class="vk">Heart Rate</div>
+          <div class="vv">{{ v.heart_rate }}</div>
+          <div class="vu">bpm</div>
+        </div>
+        {% endif %}
+        {% if v.temperature %}
+        <div class="vital-chip">
+          <div class="vk">Temp</div>
+          <div class="vv">{{ v.temperature }}</div>
+          <div class="vu">°F</div>
+        </div>
+        {% endif %}
+        {% if v.pain_level is not none %}
+        <div class="vital-chip">
+          <div class="vk">Pain</div>
+          <div class="vv">{{ v.pain_level }}</div>
+          <div class="vu">/ 10</div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="empty-state"><p>No vitals recorded for this visit.</p></div>
+  {% endif %}
+</div>
+{% endblock %}

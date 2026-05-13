@@ -11,7 +11,7 @@ def dashboard_summary():
         "total_patients": db.session.execute(func.count(Patient.patient_id)).scalar(),
         "total_providers": db.session.execute(func.count(Provider.national_provider_identifier)).scalar(),
         "total_visits": db.session.execute(func.count(Visit.visit_id)).scalar(),
-        "total_diagnoses": db.session.execute(func.count(Diagnosis.diagnosis_id_id)).scalar()
+        "total_diagnoses": db.session.execute(func.count(Diagnosis.diagnosis_id)).scalar()
     }
 
     vitals_avg=db.session.query(

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Add Diagnosis — HealthChart{% endblock %}
+{% block page_title %}Add Diagnosis{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h2>Add Diagnosis</h2>
+    <div class="subtitle">Patient ID: {{ patient_id }}</div>
+  </div>
+</div>
+
+<div class="card" style="max-width: 560px;">
+  <form method="POST" action="{{ url_for('patients.create_patient_diagnoses', patient_id=patient_id) }}">
+
+    <div class="form-grid" style="grid-template-columns: 1fr;">
+
+      <div class="form-group">
+        <label for="icd_code">ICD Code</label>
+        <input type="text" id="icd_code" name="icd_code"
+               placeholder="e.g. I10, E11.9" required />
+        {% if errors.icd_code %}
+          <span class="field-error">{{ errors.icd_code }}</span>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="status">Status</label>
+        <select id="status" name="status">
+          <option value="">— Select status —</option>
+          <option value="active">Active</option>
+          <option value="resolved">Resolved</option>
+          <option value="pending">Pending</option>
+          <option value="inactive">Inactive</option>
+        </select>
+        {% if errors.status %}
+          <span class="field-error">{{ errors.status }}</span>
+        {% endif %}
+      </div>
+
+    </div>
+
+    <div class="form-actions" style="margin-top:1.25rem;">
+      <button type="submit" class="btn btn-primary">Add Diagnosis</button>
+      <a href="{{ url_for('patients.get_patient', patient_id=patient_id) }}"
+         class="btn btn-ghost">Cancel</a>
+    </div>
+
+  </form>
+</div>
+{% endblock %}

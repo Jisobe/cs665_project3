@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}{% if patient %}Edit Patient{% else %}New Patient{% endif %} — HealthChart{% endblock %}
+{% block page_title %}{% if patient %}Edit Patient{% else %}New Patient{% endif %}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h2>{% if patient %}Edit {{ patient.first_name }} {{ patient.last_name }}{% else %}Register Patient{% endif %}</h2>
+    <div class="subtitle">{% if patient %}Update patient record{% else %}Add a new patient to the system{% endif %}</div>
+  </div>
+</div>
+
+<div class="card" style="max-width: 720px;">
+  <form method="POST"
+        action="{% if patient %}{{ url_for('patients.update_patient', patient_id=patient.patient_id) }}{% else %}{{ url_for('patients.create_patient') }}{% endif %}">
+
+    {% if patient %}
+      <input type="hidden" name="_method" value="POST">
+    {% endif %}
+
+    <div class="form-grid">
+
+      <div class="form-group">
+        <label for="patient_id">Patient ID</label>
+        <input type="text" id="patient_id" name="patient_id"
+               value="{{ patient.patient_id if patient else '' }}"
+               {% if patient %}readonly style="opacity:0.5; cursor:not-allowed;"{% endif %}
+               placeholder="e.g. PAT-00123" required />
+        {% if errors.patient_id %}
+          <span class="field-error">{{ errors.patient_id }}</span>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="date_of_birth">Date of Birth</label>
+        <input type="date" id="date_of_birth" name="date_of_birth"
+               value="{{ patient.date_of_birth if patient else '' }}" />
+        {% if errors.date_of_birth %}
+          <span class="field-error">{{ errors.date_of_birth }}</span>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="first_name">First Name</label>
+        <input type="text" id="first_name" name="first_name"
+               value="{{ patient.first_name if patient else '' }}"
+               placeholder="First name" required />
+        {% if errors.first_name %}
+          <span class="field-error">{{ errors.first_name }}</span>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="last_name">Last Name</label>
+        <input type="text" id="last_name" name="last_name"
+               value="{{ patient.last_name if patient else '' }}"
+               placeholder="Last name" required />
+        {% if errors.last_name %}
+          <span class="field-error">{{ errors.last_name }}</span>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email"
+               value="{{ patient.email if patient else '' }}"
+               placeholder="patient@example.com" />
+        {% if errors.email %}
+          <span class="field-error">{{ errors.email }}</span>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="phone_number">Phone Number</label>
+        <input type="tel" id="phone_number" name="phone_number"
+               value="{{ patient.phone_number if patient else '' }}"
+               placeholder="e.g. 555-867-5309" />
+        {% if errors.phone_number %}
+          <span class="field-error">{{ errors.phone_number }}</span>
+        {% endif %}
+      </div>
+
+    </div>
+
+    <div class="form-actions" style="margin-top:1.25rem;">
+      <button type="submit" class="btn btn-primary">
+        {% if patient %}Save Changes{% else %}Register Patient{% endif %}
+      </button>
+      <a href="{% if patient %}{{ url_for('patients.get_patient', patient_id=patient.patient_id) }}{% else %}{{ url_for('patients.get_patients') }}{% endif %}"
+         class="btn btn-ghost">Cancel</a>
+    </div>
+
+  </form>
+</div>
+{% endblock %}

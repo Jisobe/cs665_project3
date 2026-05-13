@@ -4,7 +4,7 @@ from ..validators import validate_visit, validate_vitals
 from ..models import Visit, Vitals
 from sqlalchemy.exc import IntegrityError
 
-visits_bp = Blueprint("visits", __name__, url_prefix="/visits")
+visits_bp = Blueprint("visits", __name__)
 
 @visits_bp.route("/", methods=["GET"])
 def get_visits():
@@ -99,7 +99,7 @@ def record_vitals(visit_id):
         return render_template("visits/visit_vitals_add_form.html", visit_id=visit_id, errors={}), 500
 
 
-@visits_bp.route("/<visit_id>/vitals", methods=["POST"])
+@visits_bp.route("/<visit_id>/vitals/<vital_id>/delete", methods=["POST"])
 def delete_visit_vital(visit_id, vital_id):
     visit = db.get_or_404(Visit, visit_id)
     if vital_id not in visit["vitals"]:

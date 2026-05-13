@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}{{ patient.first_name }} {{ patient.last_name }} — HealthChart{% endblock %}
+{% block page_title %}Patient Detail{% endblock %}
+
+{% block topbar_actions %}
+  <a href="{{ url_for('patients.edit_patient_form', patient_id=patient.patient_id) }}"
+     class="btn btn-outline btn-sm">Edit</a>
+  <form method="POST"
+        action="{{ url_for('patients.delete_patient', patient_id=patient.patient_id) }}"
+        style="display:inline"
+        onsubmit="return confirm('Delete this patient?')">
+    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+  </form>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h2>{{ patient.first_name }} {{ patient.last_name }}</h2>
+    <div class="subtitle">ID: {{ patient.patient_id }}</div>
+  </div>
+  <a href="{{ url_for('visits.create_visit_form') }}?patient_id={{ patient.patient_id }}"
+     class="btn btn-primary">+ New Visit</a>
+</div>
+
+<!-- Patient info -->
+<div class="card" style="margin-bottom: 1.25rem;">
+  <div class="card-header"><span class="card-title">Demographics</span></div>
+  <div class="detail-grid">
+    <div class="detail-item">
+      <div class="detail-label">Date of Birth</div>
+      <div class="detail-value">{{ patient.date_of_birth or '—' }}</div>
+    </div>
+    <div class="detail-item">
+      <div class="detail-label">Email</div>
+      <div class="detail-value">{{ patient.email or '—' }}</div>
+    </div>
+    <div class="detail-item">
+      <div class="detail-label">Phone</div>
+      <div class="detail-value">{{ patient.phone_number or '—' }}</div>
+    </div>
+    <div class="detail-item">
+      <div class="detail-label">Record Created</div>
+      <div class="detail-value td-mono" style="font-size:0.85rem">{{ patient.created_at }}</div>
+    </div>
+  </div>
+</div>
+
+<!-- Visits -->
+<div class="card" style="margin-bottom: 1.25rem;">
+  <div class="card-header">
+    <span class="card-title">Visits ({{ visits | length }})</span>
+  </div>
+  {% if visits %}
+  <div class="table-wrap" style="border:none; border-radius:0;">
+    <table>
+      <thead>
+        <tr>
+          <th>Visit ID</th>
+          <th>Date</th>
+          <th>Reason</th>
+          <th>Provider NPI</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for visit in visits %}
+        <tr>
+          <td class="td-mono">{{ visit.visit_id }}</td>
+          <td class="td-mono">{{ visit.visit_date or '—' }}</td>
+          <td>{{ visit.visit_reason or '—' }}</td>
+          <td class="td-mono">{{ visit.national_provider_identifier }}</td>
+          <td><a href="{{ url_for('visits.get_visit', visit_id=visit.visit_id) }}"
+                 class="btn btn-ghost btn-sm">View →</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <div class="empty-state"><p>No visits recorded.</p></div>
+  {% endif %}
+</div>
+
+<!-- Diagnoses -->
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">Diagnoses ({{ diagnoses | length }})</span>
+    <a href="{{ url_for('patients.create_patient_diagnosis_form', patient_id=patient.patient_id) }}"
+       class="btn btn-outline btn-sm">+ Add</a>
+  </div>
+  {% if diagnoses %}
+  <div class="table-wrap" style="border:none; border-radius:0;">
+    <table>
+      <thead>
+        <tr>
+          <th>ICD Code</th>
+          <th>Status</th>
+          <th>Created</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for dx in diagnoses %}
+        <tr>
+          <td class="td-mono">{{ dx.icd_code or '—' }}</td>
+          <td>
+            <span class="badge badge-{{ dx.status | lower if dx.status else 'inactive' }}">
+              {{ dx.status or 'Unknown' }}
+            </span>
+          </td>
+          <td class="td-mono" style="font-size:0.8rem">{{ dx.created_at }}</td>
+          <td>
+            <form method="POST"
+                  action="{{ url_for('patients.delete_patient_diagnosis', patient_id=patient.patient_id) }}"
+                  style="display:inline">
+              <input type="hidden" name="diagnosis_id" value="{{ dx.diagnosis_id }}">
+              <button type="submit" class="btn btn-danger btn-sm"
+                      onclick="return confirm('Remove this diagnosis?')">Remove</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <div class="empty-state"><p>No diagnoses on record.</p></div>
+  {% endif %}
+</div>
+{% endblock %}

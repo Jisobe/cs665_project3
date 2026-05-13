@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Visits — HealthChart{% endblock %}
+{% block page_title %}Visits{% endblock %}
+
+{% block topbar_actions %}
+  <a href="{{ url_for('visits.create_visit_form') }}" class="btn btn-primary btn-sm">+ New Visit</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h2>Visit Records</h2>
+    <div class="subtitle">{{ visits | length }} visit{% if visits | length != 1 %}s{% endif %} on record</div>
+  </div>
+</div>
+
+{% if visits %}
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Visit ID</th>
+        <th>Patient ID</th>
+        <th>Provider NPI</th>
+        <th>Date</th>
+        <th>Reason</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for visit in visits %}
+      <tr>
+        <td class="td-mono">{{ visit.visit_id }}</td>
+        <td>
+          <a href="{{ url_for('patients.get_patient', patient_id=visit.patient_id) }}"
+             style="color: var(--lavender); font-family: var(--font-mono); font-size:0.82rem;">
+            {{ visit.patient_id }}
+          </a>
+        </td>
+        <td class="td-mono">{{ visit.national_provider_identifier }}</td>
+        <td class="td-mono">{{ visit.visit_date or '—' }}</td>
+        <td>{{ (visit.visit_reason or '—') | truncate(50) }}</td>
+        <td><a href="{{ url_for('visits.get_visit', visit_id=visit.visit_id) }}"
+               class="btn btn-ghost btn-sm">View →</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+  <div class="empty-state">
+    <div class="empty-icon">📅</div>
+    <p>No visits recorded yet.</p>
+    <a href="{{ url_for('visits.create_visit_form') }}" class="btn btn-primary" style="margin-top:1rem;">
+      Log First Visit
+    </a>
+  </div>
+{% endif %}
+{% endblock %}

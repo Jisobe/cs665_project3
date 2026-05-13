@@ -26,7 +26,7 @@ class Provider(db.Model):
     created_at=db.Column(db.DateTime, nullable=False, default=dt_now)
     updated_at=db.Column(db.DateTime, nullable=False, default=dt_now, onupdate=dt_now)
     specialties=db.relationship("ProviderSpecialty", back_populates="provider", cascade="all, delete-orphan")
-    state_licenses=db.relationship("ProviderStateLicense", back_populates="provider", cascade="all, delete-orphan")
+    state_license=db.relationship("ProviderStateLicense", back_populates="provider", cascade="all, delete-orphan")
     visits=db.relationship("Visit", back_populates="provider", passive_deletes=True)
 
 class ProviderSpecialty(db.Model):
@@ -68,7 +68,7 @@ class Vitals(db.Model):
     pain_level=db.Column(db.Integer, db.CheckConstraint("pain_level BETWEEN 0 AND 10"))
     recorded_by=db.Column(db.String(100), nullable=False)
     created_at=db.Column(db.DateTime, nullable=False, default=dt_now)
-    visit=db.relationship("Visit", back_populates="vitals")
+    visits=db.relationship("Visit", back_populates="vitals")
 
 class ICD(db.Model):
     __tablename__="icd"

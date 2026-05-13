@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}{% if visit %}Edit Visit{% else %}New Visit{% endif %} — HealthChart{% endblock %}
+{% block page_title %}{% if visit %}Edit Visit{% else %}New Visit{% endif %}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h2>{% if visit %}Edit Visit{% else %}Log Visit{% endif %}</h2>
+    <div class="subtitle">{% if visit %}Update visit record {{ visit.visit_id }}{% else %}Record a new patient visit{% endif %}</div>
+  </div>
+</div>
+
+<div class="card" style="max-width:720px;">
+  <form method="POST"
+        action="{% if visit %}{{ url_for('visits.update_visit', visit_id=visit.visit_id) }}{% else %}{{ url_for('visits.create_visit') }}{% endif %}">
+
+    <div class="form-grid">
+
+      <div class="form-group">
+        <label for="visit_id">Visit ID</label>
+        <input type="text" id="visit_id" name="visit_id"
+               value="{{ visit.visit_id if visit else '' }}"
+               {% if visit %}readonly style="opacity:0.5; cursor:not-allowed;"{% endif %}
+               placeholder="e.g. VIS-00456" required />
+        {% if errors.visit_id %}
+          <span class="field-error">{{ errors.visit_id }}</span>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="patient_id">Patient ID</label>
+        <input type="text" id="patient_id" name="patient_id"
+               value="{{ visit.patient_id if visit else (prefill_patient_id or '') }}"
+               placeholder="e.g. PAT-00123" required />
+        {% if errors.patient_id %}
+          <span class="field-error">{{ errors.patient_id }}</span>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="national_provider_identifier">Provider NPI</label>
+        <input type="text" id="national_provider_identifier" name="national_provider_identifier"
+               value="{{ visit.national_provider_identifier if visit else '' }}"
+               placeholder="10-digit NPI" required maxlength="10" />
+        {% if errors.national_provider_identifier %}
+          <span class="field-error">{{ errors.national_provider_identifier }}</span>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="visit_date">Visit Date & Time</label>
+        <input type="datetime-local" id="visit_date" name="visit_date"
+               value="{{ visit.visit_date if visit else '' }}" />
+        {% if errors.visit_date %}
+          <span class="field-error">{{ errors.visit_date }}</span>
+        {% endif %}
+      </div>
+
+      <div class="form-group" style="grid-column: 1 / -1;">
+        <label for="visit_reason">Reason for Visit</label>
+        <textarea id="visit_reason" name="visit_reason"
+                  placeholder="Chief complaint or reason for the visit...">{{ visit.visit_reason if visit else '' }}</textarea>
+        {% if errors.visit_reason %}
+          <span class="field-error">{{ errors.visit_reason }}</span>
+        {% endif %}
+      </div>
+
+      <div class="form-group" style="grid-column: 1 / -1;">
+        <label for="notes">Notes</label>
+        <textarea id="notes" name="notes"
+                  placeholder="Clinical notes, observations...">{{ visit.notes if visit else '' }}</textarea>
+        {% if errors.notes %}
+          <span class="field-error">{{ errors.notes }}</span>
+        {% endif %}
+      </div>
+
+    </div>
+
+    <div class="form-actions" style="margin-top:1.25rem;">
+      <button type="submit" class="btn btn-primary">
+        {% if visit %}Save Changes{% else %}Log Visit{% endif %}
+      </button>
+      <a href="{{ url_for('visits.get_visits') }}" class="btn btn-ghost">Cancel</a>
+    </div>
+
+  </form>
+</div>
+{% endblock %}

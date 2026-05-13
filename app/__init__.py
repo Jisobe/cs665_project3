@@ -21,8 +21,12 @@ def create_app():
     db.init_app(app)
 
     from .blueprints.patients import patients_bp
+    from .blueprints.dashboard import dashboard_bp
+    from .blueprints.visits import visits_bp
 
+    app.register_blueprint(dashboard_bp)
     app.register_blueprint(patients_bp, url_prefix="/patients")
+    app.register_blueprint(visits_bp, url_prefix="/visits")
 
     with app.app_context():
         from . import models

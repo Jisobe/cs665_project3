@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Record Vitals — HealthChart{% endblock %}
+{% block page_title %}Record Vitals{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h2>Record Vitals</h2>
+    <div class="subtitle">Visit ID: {{ visit_id }}</div>
+  </div>
+</div>
+
+<div class="card" style="max-width:720px;">
+  <form method="POST" action="{{ url_for('visits.record_vitals', visit_id=visit_id) }}">
+
+    <div class="form-grid">
+
+      <div class="form-group">
+        <label for="height">Height (inches)</label>
+        <input type="number" id="height" name="height" min="0" step="1"
+               placeholder="e.g. 68" />
+        {% if errors.height %}<span class="field-error">{{ errors.height }}</span>{% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="weight">Weight (lbs)</label>
+        <input type="number" id="weight" name="weight" min="0" step="0.1"
+               placeholder="e.g. 160.5" />
+        {% if errors.weight %}<span class="field-error">{{ errors.weight }}</span>{% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="systolic">Systolic BP (mmHg)</label>
+        <input type="number" id="systolic" name="systolic" min="0"
+               placeholder="e.g. 120" />
+        {% if errors.systolic %}<span class="field-error">{{ errors.systolic }}</span>{% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="diastolic">Diastolic BP (mmHg)</label>
+        <input type="number" id="diastolic" name="diastolic" min="0"
+               placeholder="e.g. 80" />
+        {% if errors.diastolic %}<span class="field-error">{{ errors.diastolic }}</span>{% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="temperature">Temperature (°F)</label>
+        <input type="number" id="temperature" name="temperature" min="0" step="0.01"
+               placeholder="e.g. 98.6" />
+        {% if errors.temperature %}<span class="field-error">{{ errors.temperature }}</span>{% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="heart_rate">Heart Rate (bpm)</label>
+        <input type="number" id="heart_rate" name="heart_rate" min="0"
+               placeholder="e.g. 72" />
+        {% if errors.heart_rate %}<span class="field-error">{{ errors.heart_rate }}</span>{% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="pain_level">Pain Level (0–10)</label>
+        <input type="number" id="pain_level" name="pain_level" min="0" max="10"
+               placeholder="0" />
+        {% if errors.pain_level %}<span class="field-error">{{ errors.pain_level }}</span>{% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="recorded_by">Recorded By</label>
+        <input type="text" id="recorded_by" name="recorded_by"
+               placeholder="Name or ID of staff member" />
+        {% if errors.recorded_by %}<span class="field-error">{{ errors.recorded_by }}</span>{% endif %}
+      </div>
+
+    </div>
+
+    <div class="form-actions" style="margin-top:1.25rem;">
+      <button type="submit" class="btn btn-primary">Save Vitals</button>
+      <a href="{{ url_for('visits.get_visit', visit_id=visit_id) }}"
+         class="btn btn-ghost">Cancel</a>
+    </div>
+
+  </form>
+</div>
+{% endblock %}

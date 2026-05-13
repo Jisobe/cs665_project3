@@ -4,7 +4,7 @@ from ..validators import validate_patient, validate_diagnosis
 from ..models import Patient, Diagnosis, Visit
 from sqlalchemy.exc import IntegrityError
 
-patients_bp=Blueprint("patients", __name__, url_prefix="/patients")
+patients_bp=Blueprint("patients", __name__)
 
 @patients_bp.route("/create", methods=["POST"])
 def create_patient():
@@ -90,7 +90,7 @@ def create_patient_diagnoses(patient_id):
     flash("Successfully added diagnosis", "success")
     return redirect(url_for("patients.get_patient", patient_id=patient_id))
 
-@patients_bp.route("/<patient_id>/diagnosis", methods=["POST"])
+@patients_bp.route("/<patient_id>/diagnosis/<diagnosis_id>/delete", methods=["POST"])
 def delete_patient_diagnosis(patient_id, diagnosis_id):
     patient=db.get_or_404(Patient, patient_id)
     if diagnosis_id not in patient["diagnosis"]:

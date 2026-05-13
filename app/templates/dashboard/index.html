@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — HealthChart{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<!-- Totals -->
+<div class="stat-grid">
+  <div class="stat-card">
+    <div class="label">Patients</div>
+    <div class="value">{{ totals.total_patients }}</div>
+    <div class="unit">total registered</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Providers</div>
+    <div class="value">{{ totals.total_providers }}</div>
+    <div class="unit">active providers</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Visits</div>
+    <div class="value">{{ totals.total_visits }}</div>
+    <div class="unit">all time</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Diagnoses</div>
+    <div class="value">{{ totals.total_diagnoses }}</div>
+    <div class="unit">on record</div>
+  </div>
+</div>
+
+<!-- Vitals averages -->
+<div class="card" style="margin-bottom: 1.25rem;">
+  <div class="card-header">
+    <span class="card-title">Population Vitals Averages</span>
+  </div>
+  <div class="vitals-grid">
+    <div class="vital-chip">
+      <div class="vk">Height</div>
+      <div class="vv">{{ vitals_averages.avg_height or '—' }}</div>
+      <div class="vu">inches</div>
+    </div>
+    <div class="vital-chip">
+      <div class="vk">Weight</div>
+      <div class="vv">{{ vitals_averages.avg_weight or '—' }}</div>
+      <div class="vu">lbs</div>
+    </div>
+    <div class="vital-chip">
+      <div class="vk">Systolic</div>
+      <div class="vv">{{ vitals_averages.avg_sys or '—' }}</div>
+      <div class="vu">mmHg</div>
+    </div>
+    <div class="vital-chip">
+      <div class="vk">Diastolic</div>
+      <div class="vv">{{ vitals_averages.avg_dia or '—' }}</div>
+      <div class="vu">mmHg</div>
+    </div>
+    <div class="vital-chip">
+      <div class="vk">Heart Rate</div>
+      <div class="vv">{{ vitals_averages.avg_bpm or '—' }}</div>
+      <div class="vu">bpm</div>
+    </div>
+    <div class="vital-chip">
+      <div class="vk">Temperature</div>
+      <div class="vv">{{ vitals_averages.avg_temp or '—' }}</div>
+      <div class="vu">°F</div>
+    </div>
+    <div class="vital-chip">
+      <div class="vk">Pain Level</div>
+      <div class="vv">{{ vitals_averages.avg_pain or '—' }}</div>
+      <div class="vu">/ 10</div>
+    </div>
+  </div>
+</div>
+
+<!-- Charts row -->
+<div class="dash-grid">
+
+  <!-- Visits per provider -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Visits per Provider</span>
+    </div>
+    {% if visits_per_provider %}
+      {% set max_visits = visits_per_provider | map(attribute='visit_count') | max %}
+      {% for row in visits_per_provider %}
+        <div class="bar-row">
+          <span class="bar-label" title="{{ row.name }}">{{ row.name }}</span>
+          <div class="bar-track">
+            <div class="bar-fill"
+                 style="width: {{ (row.visit_count / max_visits * 100) | round }}%">
+            </div>
+          </div>
+          <span class="bar-count">{{ row.visit_count }}</span>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty-state"><div class="empty-icon">📋</div><p>No visit data yet</p></div>
+    {% endif %}
+  </div>
+
+  <!-- Diagnoses by status -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Diagnoses by Status</span>
+    </div>
+    {% if diagnosis_by_status %}
+      {% set max_dx = diagnosis_by_status | map(attribute='count') | max %}
+      {% for row in diagnosis_by_status %}
+        <div class="bar-row">
+          <span class="bar-label">
+            <span class="badge badge-{{ row.status | lower }}">{{ row.status or 'Unknown' }}</span>
+          </span>
+          <div class="bar-track">
+            <div class="bar-fill"
+                 style="width: {{ (row.count / max_dx * 100) | round }}%">
+            </div>
+          </div>
+          <span class="bar-count">{{ row.count }}</span>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty-state"><div class="empty-icon">🩺</div><p>No diagnosis data yet</p></div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}
