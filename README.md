@@ -102,25 +102,11 @@ For easy of use and convenience, HealthChart has a `flask seed` command that pop
 uv run flask --app main seed
 ```
 
-Example output:
-
-```
-  ICD codes: 7 inserted, 0 skipped.
-  Patients: 5 inserted, 0 skipped.
-  Providers: 5 inserted, 0 skipped.
-  Provider Specialties: 5 inserted, 0 skipped.
-  Provider State Licenses: 5 inserted, 0 skipped.
-  Visits: 7 inserted, 0 skipped.
-  Vitals: 7 inserted, 0 skipped.
-  Diagnoses: 7 inserted, 0 skipped.
-✓ Database seeded successfully.
-```
-
 The seeder is idempotent - running it multiple times will skip rows that already exist rather than inserting duplicates.
 
 ### Reset and reseed
 
-**WARNING** This will override an existing data in the database. Use with caution.
+***WARNING*** This will override an existing data in the database. Use with caution.
 
 To wipe the database and start fresh:
 
@@ -144,7 +130,7 @@ uv run flask --app main run --debug --port 5001
 
 ### Using a `.env` file (optional)
 
-Create a `.env` file in the project root to avoid typing `--app main` each time:
+Create a copy of the `.env.example` file in the project root and name it `.env`. Ensure the following variables exist in the new file:
 
 ```bash
 # .env
@@ -152,8 +138,9 @@ FLASK_APP=main
 FLASK_DEBUG=1
 ```
 
-Then run simply:
+Then run:
 
 ```bash
-uv run flask run
+uv run flask run # Run the app
+uv run flask seed # Add seed data
 ```

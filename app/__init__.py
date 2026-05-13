@@ -3,7 +3,6 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import event
 from sqlalchemy.engine import Engine
 import sqlite3
-from .seed import register_seed_command
 
 db = SQLAlchemy()
 
@@ -24,6 +23,7 @@ def create_app():
     from .blueprints.patients import patients_bp
     from .blueprints.dashboard import dashboard_bp
     from .blueprints.visits import visits_bp
+    from .seed import register_seed_command
 
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(patients_bp, url_prefix="/patients")

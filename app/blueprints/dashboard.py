@@ -56,7 +56,7 @@ def dashboard_summary():
 
     diagnosis_by_status=[
             {"status": row.status,
-             "count": row.count
+             "count": row.diagnosis_status_count
             } for row in diagnosis_count_by_status
         ]
 

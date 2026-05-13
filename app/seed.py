@@ -162,7 +162,7 @@ def _seed_diagnoses():
         ("DGN-002", "VST-002", "R07.9",  "active"),
         ("DGN-003", "VST-003", "J06.9",  "resolved"),
         ("DGN-004", "VST-004", "R00.2",  "active"),
-        ("DGN-005", "VST-005", "E11.9",  "active"),
+        ("DGN-005", "VST-005", "E11.9",  "chronic"),
         ("DGN-006", "VST-006", "M79.36", "active"),
         ("DGN-007", "VST-007", "I10",    "active"),
     ]
