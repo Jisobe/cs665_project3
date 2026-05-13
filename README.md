@@ -2,9 +2,23 @@
 
 This application provides a charting system for US base healthcare facilities
 
+## Quickstart Guide
+
+Run the following commands (Requires uv)
+
+```bash
+git clone https://github.com/Jisobe/cs665_project3.git
+cd cs665_project3
+cp .env.example .env # Create local .env file
+pip install uv # Install uv
+uv run flask seed # Add seed data
+uv run flask run # Run the app
+```
+
 ## Table of Contents
 
 - [Healthcare Charting System](#healthcare-charting-system)
+  - [Quickstart Guide](#quickstart-guide)
   - [Table of Contents](#table-of-contents)
   - [Project Description](#project-description)
   - [Tech Stack](#tech-stack)
