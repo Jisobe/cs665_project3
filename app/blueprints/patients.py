@@ -87,7 +87,7 @@ def delete_patient(patient_id):
 def create_patient_diagnosis_form(patient_id):
     db.get_or_404(Patient, patient_id)
     codes=ICD.query.order_by(ICD.icd_code.desc()).all()
-    return render_template("patients/patient_add_diagnosis_form.html", patient_id=patient_id, codes=codes, errors={})
+    return render_template("patients/patient_add_diagnosis_form.html", patient_id=patient_id, codes=codes, diagnosis=None, errors={})
 
 @patients_bp.route("/<patient_id>/diagnoses", methods=["POST"])
 def create_patient_diagnoses(patient_id):
@@ -97,7 +97,7 @@ def create_patient_diagnoses(patient_id):
     errors=validate_diagnosis(data)
     if errors:
         codes=ICD.query.order_by(ICD.icd_code.desc()).all()
-        return render_template("patients/patient_add_diagnosis_form.html", patient_id=patient_id, codes=codes, errors=errors), 422
+        return render_template("patients/patient_add_diagnosis_form.html", patient_id=patient_id, codes=codes, diagnosis=None, errors=errors), 422
     diagnosis = Diagnosis(**{k: v for k,v in data.items() if hasattr (Diagnosis, k)})
     db.session.add(diagnosis)
     db.session.flush()
@@ -111,8 +111,9 @@ def edit_diagnosis_form(diagnosis_id):
     diagnosis = db.get_or_404(Diagnosis, diagnosis_id)
     codes = ICD.query.all()
     return render_template(
-        "patients/diagnosis_form.html",
+        "patients/patient_add_diagnosis_form.html",
         diagnosis=diagnosis,
+        patient_id=diagnosis.patient_id,
         codes=codes,
         errors={}
     )
@@ -124,8 +125,9 @@ def update_diagnosis(diagnosis_id):
     errors = validate_diagnosis(data)
     if errors:
         return render_template(
-            "patients/diagnosis_form.html",
+            "patients/patient_add_diagnosis_form.html",
             diagnosis=diagnosis,
+            patient_id=diagnosis.patient_id,
             codes=ICD.query.all(),
             errors=errors
         ), 422

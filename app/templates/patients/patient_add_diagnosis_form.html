@@ -12,7 +12,7 @@
 </div>
 
 <div class="card" style="max-width: 560px;">
-  <form method="POST" action="{{ url_for('patients.create_patient_diagnoses', patient_id=patient_id) }}">
+  <form method="POST" action="{% if diagnosis %} {{ url_for('patients.update_diagnosis', diagnosis_id=diagnosis.diagnosis_id) }} {% else %} {{ url_for('patients.create_patient_diagnoses', patient_id=patient_id, diagnosis_id=diagnosis.diagnosis_id) }} {% endif %}">
 
     <div class="form-grid" style="grid-template-columns: 1fr;">
 
@@ -39,6 +39,8 @@
           <option value="resolved" {% if current == "resolved" %}selected{% endif %}>Resolved</option>
           <option value="chronic" {% if current == "chronic" %}selected{% endif %}>Chronic</option>
           <option value="remission" {% if current == "remission" %}selected{% endif %}>Remission</option>
+          <option value="acute" {% if current == "acute" %}selected{% endif %}>Acute</option>
+          <option value="suspended" {% if current == "suspended" %}selected{% endif %}>Suspended</option>
         </select>
         {% if errors.status %}
           <span class="field-error">{{ errors.status }}</span>
@@ -48,9 +50,8 @@
     </div>
 
     <div class="form-actions" style="margin-top:1.25rem;">
-      <button type="submit" class="btn btn-primary">Add Diagnosis</button>
-      <a href="{{ url_for('patients.get_patient', patient_id=patient_id) }}"
-         class="btn btn-ghost">Cancel</a>
+      <button type="submit" class="btn btn-primary">{% if diagnosis %}Save{% else %}Add Diagnosis{% endif %}</button>
+      <a href="{{ url_for('patients.get_patient', patient_id=diagnosis.patient_id if diagnosis else patient_id) }}" class="btn btn-ghost">Cancel</a>
     </div>
 
   </form>

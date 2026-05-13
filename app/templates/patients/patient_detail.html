@@ -111,9 +111,9 @@
             </span>
           </td>
           <td class="td-mono" style="font-size:0.8rem">{{ dx.created_at }}</td>
-          <td>
-            <a href="{{ url_for('patients.update_diagnosis', diagnosis_id=dx.diagnosis_id) }}"
-     class="btn btn-outline btn-sm">Edit</a>
+          <td style="text-align: right;">
+            <a href="{{ url_for('patients.edit_diagnosis_form', diagnosis_id=dx.diagnosis_id) }}"
+     class="btn btn-outline btn-sm" style="margin-right: 8px;">Edit</a>
             <form method="POST"
                   action="{{ url_for('patients.delete_patient_diagnosis', patient_id=patient.patient_id, diagnosis_id=dx.diagnosis_id) }}"
                   style="display:inline">
