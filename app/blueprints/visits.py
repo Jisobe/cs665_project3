@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, render_template, redirect, url_for, flash
 from .. import db
 from ..validators import validate_visit, validate_vitals
 from ..models import Visit, Vitals
@@ -6,105 +6,112 @@ from sqlalchemy.exc import IntegrityError
 
 visits_bp = Blueprint("visits", __name__, url_prefix="/visits")
 
+@visits_bp.route("/", methods=["GET"])
+def get_visits():
+    visits=Visit.query.all()
+    return render_template("visits/visit_list.html", visits=visits)
+
+@visits_bp.route("/new", methods=["GET"])
+def create_visit_form():
+    prefill_patient_id = request.args.get("patient_id", "")
+    return render_template("visits/visit_update_form.html", visit=None, errors={}, prefill_patient_id=prefill_patient_id)
+
 @visits_bp.route("/create", methods=["POST"])
 def create_visit():
-    data=request.get_json()
+    data=request.form.to_dict()
     errors=validate_visit(data)
     if errors:
-        return jsonify({"errors": errors}), 422
+        return render_template("visit/visit_update_form.html", visit=None, errors=errors, prefill_patient_data=""), 422
 
-    visit = Visit(**{k: data[k] for k in data if hasattr (Visit, k)})
+    visit = Visit(**{k: v for k, v in data.items() if hasattr(Visit, k) and k != "_method"})
     db.session.add(visit)
     db.session.commit()
-    return jsonify({"visit_id": visit.visit_id}), 201
+    flash("Created visit record", "success")
+    return redirect(url_for("visits.get_visit", visit_id=visit.visit_id))
 
 @visits_bp.route("/<visit_id>", methods=["GET"])
 def get_visit(visit_id):
     visit = db.get_or_404(Visit, visit_id)
-    return jsonify({
-        "visit_id": visit.visit_id,
-        "visit_id": visit.visit_id,
-        "national_provider_identifier": visit.national_provider_identifier,
-        "visit_date": visit.visit_date.isoformat() if visit.visit_date else None,
-        "visit_reason": visit.visit_reason,
-        "notes": visit.notes,
-        "vitals": [
-            {
-                "vitals_id": vital.vitals_id,
-                "height": vital.height,
-                "weight": vital.weight,
-                "systolic": vital.systolic,
-                "diastolic": vital.diastolic,
-                "temperature": vital.temperature,
-                "heart_rate": vital.heart_rate,
-                "pain_level": vital.pain_level,
-                "recorded_by": vital.recorded_by,
-                "created_at": vital.created_at.isoformat(),
-            }
-            for vital in visit.vitals
-        ],
-    })
+    vitals=Vitals.query.filter_by(visit_id=visit_id).order_by(Vitals.created_at).all()
+    return render_template("visits/visit_detail.html", visit=visit, vitals=vitals)
 
-@visits_bp.route("/<visit_id>", methods=["PATCH"])
+@visits_bp.route("/<visit_id>/edit", methods=["GET"])
+def edit_visit_form(visit_id):
+    visit = db.get_or_404(Visit, visit_id)
+    return render_template("visits/visit_update_form.html", visit=visit, errors={})
+
+@visits_bp.route("/<visit_id>", methods=["POST"])
 def update_visit(visit_id):
     visit=db.get_or_404(Visit, visit_id)
     data=request.get_json()
     errors=validate_visit(data)
     if errors:
-        return jsonify({"errors": errors}), 422
+        return render_template("visit/visit_update_form.html", visit=None, errors=errors, prefill_patient_data=""), 422
 
     for key, value in data.items():
-        if hasattr(visit, key) and key != "visit_id":
-            setattr(visit, key, value)
+        if hasattr(visit, key) and key not in ("visit_id", "_method"):
+            setattr(visit, key, value or None)
 
     db.session.commit()
-    return jsonify({"Message: visit updated"})
+    flash("Successfully updated visit", "success")
+    return redirect(url_for("visits.get_visit", visit_id=visit_id))
 
-@visits_bp.route("/<visit_id>", methods=["DELETE"])
+@visits_bp.route("/<visit_id>/delete", methods=["POST"])
 def delete_visit(visit_id):
     visit = db.get_or_404(Visit, visit_id)
     try:
         db.session.delete(visit)
         db.session.commit()
-        return "", 204
+        flash("Deleted visit", "info")
+        return redirect(url_for("visits.get_visits"))
     except IntegrityError:
         db.session.rollback()
-        return jsonify({"error": "Unable to delete visit. Visit has exisiting vitals"}), 409
+        flash("Unable to delete visit. Visit has exisiting vitals", "error")
+        return redirect(url_for("visits.get_visit", visit_id=visit_id))
+
+@visits_bp.route("/<visit_id>/vitals/new", methods=["GET"])
+def record_vitals_form(visit_id):
+    db.get_or_404(Visit, visit_id)
+    return render_template("visits/visit_vitals_add_form.html", visit_id=visit_id, errors={})
 
 @visits_bp.route("/<visit_id>/vitals", methods=["POST"])
 def record_vitals(visit_id):
     visit = db.get_or_404(Visit, visit_id)
-    data = request.get_json()
+    data = request.form.to_dict()
     data["visit_id"] = visit_id
     errors = validate_vitals(data)
     if errors:
-        return jsonify({"errors": errors}), 422
+        return render_template("visits/visit_vitals_add_form.html", visit_id=visit_id, errors=errors), 422
 
     try:
         # Update visit notes to indicate vitals taken
         visit.notes = (visit.notes or "") + f"\n[Vitals recorded by {data.get('recorded_by', 'unknown')}]"
 
-        vitals = Vitals(**{k: data[k] for k in data if hasattr(Vitals, k)})
+        vitals = Vitals(**{k: v for k, v in data.items() if hasattr(Vitals, k) and k != "_method"})
         db.session.add(vitals)
-
         db.session.commit()
-        return jsonify({"vitals_id": vitals.vitals_id}), 201
+        flash("Successfully created vitals record.", "success")
+        return redirect(url_for("visits.get_visit", visit_id=visit_id))
 
     except Exception as e:
         db.session.rollback()
-        return jsonify({"error": "Transaction failed, changes not saved.", "detail": str(e)}), 500
+        flash(f"Transaction failed, changed not saved: {str(e)}", "error")
+        return render_template("visits/visit_vitals_add_form.html", visit_id=visit_id, errors={}), 500
 
 
-@visits_bp.route("/<visit_id>/vitals", methods=["DELETE"])
+@visits_bp.route("/<visit_id>/vitals", methods=["POST"])
 def delete_visit_vital(visit_id, vital_id):
     visit = db.get_or_404(Visit, visit_id)
     if vital_id not in visit["vitals"]:
-        return jsonify({"error": "Unable to delete visit vital record. No such vital record for this visit"}), 409
+        flash("Unable to delete visit vital record. No such vital record for this visit")
+        return redirect(url_for("visits.get_visit", visit_id=visit_id)), 409
     vital=db.get_or_404(Vitals, vital_id)
     try:
         db.session.delete(vital)
         db.session.commit()
-        return "", 204
+        flash("Deleted vital record", "info")
+        return redirect(url_for("visits.get_visit", visit_id=visit_id))
     except IntegrityError as e:
         db.session.rollback()
-        return jsonify({"error": "Unable to delete visit vital record", "detail": str(e)}), 409
+        flash(f"Cannot delete visit with existing records: {str(e)}", "error")
+        return redirect(url_for("visits.get_visit", visit_id=visit_id))

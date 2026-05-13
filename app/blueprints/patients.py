@@ -1,118 +1,108 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, render_template, flash, redirect, url_for
 from .. import db
 from ..validators import validate_patient, validate_diagnosis
-from ..models import Patient, Diagnosis
+from ..models import Patient, Diagnosis, Visit
 from sqlalchemy.exc import IntegrityError
 
 patients_bp=Blueprint("patients", __name__, url_prefix="/patients")
 
 @patients_bp.route("/create", methods=["POST"])
 def create_patient():
-    data=request.get_json()
+    data=request.form.to_dict()
     errors=validate_patient(data)
     if errors:
-        return jsonify({"errors": errors}), 422
+        return render_template("patients/patient_edit_form.html", patient=None, errors=errors), 422
 
-    patient = Patient(**{k: data[k] for k in data if hasattr (Patient, k)})
+    patient = Patient(**{k: v for k, v in data.items() if hasattr (Patient, k)})
     db.session.add(patient)
     db.session.commit()
-    return jsonify({"patient_id": patient.patient_id}), 201
+    flash("Successfully created patient", "success")
+    return redirect(url_for("patients.get_patient", patient_id=patient.patient_id))
+
+@patients_bp.route("/new", methods=["GET"])
+def create_patient_form():
+    return render_template("patients/patient_edit_form.html", patient=None, errors={})
 
 @patients_bp.route("/all", methods=["GET"])
 def get_patients():
     patients=Patient.query.all()
-    return jsonify([
-        {
-            "patient_id": patient.patient_id,
-            "first_name": patient.first_name,
-            "last_name": patient.last_name,
-            "email": patient.email if patient.email else None,
-            "phone_number": patient.phone_number if patient.phone_number else None,
-            "date_of_birth": patient.date_of_birth
-
-        }
-        for patient in patients
-    ])
+    return render_template("patients/patients_list.html", patients=patients)
 
 @patients_bp.route("/<patient_id>", methods=["GET"])
 def get_patient(patient_id):
     patient=db.get_or_404(Patient, patient_id)
-    return jsonify([
-        {
-            "patient_id": patient.patient_id,
-            "first_name": patient.first_name,
-            "last_name": patient.last_name,
-            "email": patient.email if patient.email else None,
-            "phone_number": patient.phone_number if patient.phone_number else None,
-            "date_of_birth": patient.date_of_birth
+    diagnoses=Diagnosis.query.filter_by(patient_id=patient_id).all()
+    visits=Visit.query.filter_by(patient_id=patient_id).order_by(Visit.visit_date.desc()).all()
+    return render_template("patients/patient_detail.html", patient=patient, diagnoses=diagnoses, visits=visits)
 
-        }
-    ])
+@patients_bp.route("/<patient_id>/update", methods=["GET"])
+def edit_patient_form(patient_id):
+    patient = db.get_or_404(Patient, patient_id)
+    return render_template("patients/patient_edit_form.html", patient=patient, errors={})
 
-@patients_bp.route("/<patient_id>", methods=["PATCH"])
+@patients_bp.route("/<patient_id>", methods=["POST"])
 def update_patient(patient_id):
     patient=db.get_or_404(Patient, patient_id)
-    data=request.get_json()
-    errors=validate_patient(data)
+    data=request.form.to_dict()
+    errors=validate_patient({**data, "patient_id": patient_id})
     if errors:
-        return jsonify({"errors": errors}), 422
+        return render_template("patients/patient_edit_form.html", patient=patient, errors=errors), 422
 
     for key, value in data.items():
-        if hasattr(patient, key) and key != "patient_id":
-            setattr(patient, key, value)
+        if hasattr(patient, key) and key not in ("patient_id", "_method"):
+            setattr(patient, key, value or None)
 
     db.session.commit()
-    return jsonify({"Message: Patient updated"})
+    flash("Successfully updated patient", "success")
+    return redirect(url_for("patients.get_patient", patient_id=patient_id))
 
-@patients_bp.route("/<patient_id>", methods=["DELETE"])
+@patients_bp.route("/<patient_id>/delete", methods=["POST"])
 def delete_patient(patient_id):
     patient=db.get_or_404(Patient, patient_id)
     try:
         db.session.delete(patient)
         db.session.commit()
-        return "", 204
+        flash("Deleted patient", "info")
+        return redirect(url_for("patients.get_patients"))
     except IntegrityError:
         db.session.rollback()
-        return jsonify({"error": "Unable to delete patient. Patient has existing visits or diagnoses"}), 409
+        flash("Unable to delete patient. Patient has existing visits or diagnoses", "error")
+        return redirect(url_for("patients.get_patient", patient_id=patient_id))
 
-@patients_bp.route("/<patient_id>/diagnoses", methods=["GET"])
-def get_patient_diagnoses(patient_id):
+
+@patients_bp.route("/<patient_id>/diagnoses/new", methods=["GET"])
+def create_patient_diagnosis_form(patient_id):
     db.get_or_404(Patient, patient_id)
-    diagnoses = Diagnosis.query.filter_by(patient_id=patient_id).all()
-    return jsonify([
-        {
-            "diagnosis_id": diagnosis.diagnosis_id,
-            "icd_code": diagnosis.icd_code,
-            "status": diagnosis.status,
-            "created_at": diagnosis.created_at.isoformat()
-        }
-        for diagnosis in diagnoses
-    ])
+    return render_template("patients/patient_add_diagnosis_form.html", patient_id=patient_id, errors={})
 
 @patients_bp.route("/<patient_id>/diagnoses", methods=["POST"])
 def create_patient_diagnoses(patient_id):
     db.get_or_404(Patient, patient_id)
-    data=request.get_json()
+    data=request.form.to_dict()
     data["patient_id"]=patient_id
     errors=validate_diagnosis(data)
     if errors:
-        return jsonify({"errors": errors}), 422
+        return render_template("patients/patient_add_diagnosis_form.html", patient_id=patient_id, errors=errors), 422
 
-    diagnosis = Diagnosis(**{k: data[k] for k in data if hasattr (Diagnosis, k)})
+    diagnosis = Diagnosis(**{k: v for k,v in data.items() if hasattr (Diagnosis, k)})
     db.session.add(diagnosis)
     db.session.commit()
-    return jsonify({"diagnosis_id": diagnosis.diagnosis_id}), 201
+    flash("Successfully added diagnosis", "success")
+    return redirect(url_for("patients.get_patient", patient_id=patient_id))
 
-@patients_bp.route("/<patient_id>/diagnosis", methods=["DELETE"])
+@patients_bp.route("/<patient_id>/diagnosis", methods=["POST"])
 def delete_patient_diagnosis(patient_id, diagnosis_id):
     patient=db.get_or_404(Patient, patient_id)
     if diagnosis_id not in patient["diagnosis"]:
-        return jsonify({"error": "Unable to delete patient diagnosis. No such diagnosis for this patient"}), 409
+        flash("Unable to delete patient diagnosis. No such diagnosis for this patient", "error")
+        return redirect(url_for("patients.get_patient", patient_id=patient_id))
     diagnosis=db.get_or_404(Diagnosis, diagnosis_id)
     try:
         db.session.delete(diagnosis)
         db.session.commit()
-        return "", 204
+        flash("Deleted patient diagnosis.", "info")
+        return redirect(url_for("patients.get_patients", patient_id=patient_id))
     except IntegrityError as e:
         db.session.rollback()
-        return jsonify({"error": "Unable to delete diagnosis", "detail": str(e)}), 409
+        flash("Unable to delete diagnosis", "error")
+        return redirect(url_for("patients.get_patient", patient_id=patient_id))
