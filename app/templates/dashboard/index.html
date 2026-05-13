@@ -1,10 +1,10 @@
+{% comment %} File Generated with AI {% endcomment %}
 {% extends "base.html" %}
 {% block title %}Dashboard — HealthChart{% endblock %}
 {% block page_title %}Dashboard{% endblock %}
 
 {% block content %}
 
-<!-- Totals -->
 <div class="stat-grid">
   <div class="stat-card">
     <div class="label">Patients</div>
@@ -28,7 +28,6 @@
   </div>
 </div>
 
-<!-- Vitals averages -->
 <div class="card" style="margin-bottom: 1.25rem;">
   <div class="card-header">
     <span class="card-title">Population Vitals Averages</span>
@@ -72,10 +71,7 @@
   </div>
 </div>
 
-<!-- Charts row -->
 <div class="dash-grid">
-
-  <!-- Visits per provider -->
   <div class="card">
     <div class="card-header">
       <span class="card-title">Visits per Provider</span>
@@ -98,7 +94,6 @@
     {% endif %}
   </div>
 
-  <!-- Diagnoses by status -->
   <div class="card">
     <div class="card-header">
       <span class="card-title">Diagnoses by Status</span>
@@ -122,6 +117,5 @@
       <div class="empty-state"><div class="empty-icon">🩺</div><p>No diagnosis data yet</p></div>
     {% endif %}
   </div>
-
 </div>
 {% endblock %}

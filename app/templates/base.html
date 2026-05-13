@@ -1,3 +1,4 @@
+{% comment %} File Generated with AI {% endcomment %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,8 +8,6 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
 </head>
 <body>
-
-  <!-- Sidebar -->
   <aside class="sidebar">
     <div class="sidebar-brand">
       <div class="mark"></div>
@@ -49,7 +48,6 @@
     </div>
   </aside>
 
-  <!-- Main content -->
   <main class="main">
     <div class="topbar">
       <span class="topbar-title">{% block page_title %}{% endblock %}</span>
@@ -57,7 +55,6 @@
     </div>
 
     <div class="page-content">
-      <!-- Flash messages -->
       {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
           <div class="flashes">
@@ -71,6 +68,5 @@
       {% block content %}{% endblock %}
     </div>
   </main>
-
 </body>
 </html>

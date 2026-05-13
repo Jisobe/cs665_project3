@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import event
 from sqlalchemy.engine import Engine
 import sqlite3
+from .seed import register_seed_command
 
 db = SQLAlchemy()
 
@@ -32,4 +33,5 @@ def create_app():
         from . import models
         db.create_all()
 
+    register_seed_command(app)
     return app
