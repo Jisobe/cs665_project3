@@ -6,7 +6,8 @@ def dt_now():
 
 class Patient(db.Model):
     __tablename__="patient"
-    patient_id=db.Column(db.String(20), primary_key=True)
+    patient_id=db.Column(db.Integer, primary_key=True)
+    patient_num=db.Column(db.String(20), unique=True)
     date_of_birth=db.Column(db.Date, nullable=False)
     first_name=db.Column(db.String(50), nullable=False)
     last_name=db.Column(db.String(50), nullable=False)
@@ -44,11 +45,13 @@ class ProviderStateLicense(db.Model):
 
 class Visit(db.Model):
     __tablename__="visit"
-    visit_id=db.Column(db.String(20), primary_key=True)
-    patient_id=db.Column(db.String(20), db.ForeignKey("patient.patient_id", ondelete="RESTRICT"), nullable=False)
+    visit_id=db.Column(db.Integer, primary_key=True)
+    visit_num=db.Column(db.String(20), unique=True)
+    patient_id=db.Column(db.Integer, db.ForeignKey("patient.patient_id", ondelete="RESTRICT"), nullable=False)
     national_provider_identifier=db.Column(db.String(10), db.ForeignKey("provider.national_provider_identifier", ondelete="RESTRICT"),nullable=False)
     visit_date=db.Column(db.DateTime, nullable=False)
     visit_reason=db.Column(db.Text, nullable=False)
+    notes=db.Column(db.Text)
     created_at=db.Column(db.DateTime, nullable=False, default=dt_now)
     updated_at=db.Column(db.DateTime, nullable=False, default=dt_now, onupdate=dt_now)
     patient=db.relationship("Patient", back_populates="visits")
@@ -57,7 +60,8 @@ class Visit(db.Model):
 
 class Vitals(db.Model):
     __tablename__="vitals"
-    vitals_id=db.Column(db.String(20), primary_key=True)
+    vitals_id=db.Column(db.Integer, primary_key=True)
+    vitals_num=db.Column(db.String(20), unique=True)
     visit_id=db.Column(db.String(20), db.ForeignKey("visit.visit_id"), nullable=False)
     height=db.Column(db.Integer)
     weight=db.Column(db.Float)
@@ -78,8 +82,9 @@ class ICD(db.Model):
 
 class Diagnosis(db.Model):
     __tablename__="diagnosis"
-    diagnosis_id=db.Column(db.String(20), primary_key=True)
-    patient_id=db.Column(db.String(20), db.ForeignKey("patient.patient_id", ondelete="RESTRICT"), nullable=False)
+    diagnosis_id=db.Column(db.Integer, primary_key=True)
+    diagnosis_num=db.Column(db.String(20), unique=True)
+    patient_id=db.Column(db.Integer, db.ForeignKey("patient.patient_id", ondelete="RESTRICT"), nullable=False)
     icd_code=db.Column(db.String(20), db.ForeignKey("icd.icd_code"), nullable=False)
     status=db.Column(db.String(20), nullable=False)
     created_at=db.Column(db.DateTime, nullable=False, default=dt_now)

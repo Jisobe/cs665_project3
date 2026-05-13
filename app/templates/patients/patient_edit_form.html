@@ -1,4 +1,4 @@
-{# File Generated with AI #}
+{# File Generated with AI assistance#}
 {% extends "base.html" %}
 {% block title %}{% if patient %}Edit Patient{% else %}New Patient{% endif %} — HealthChart{% endblock %}
 {% block page_title %}{% if patient %}Edit Patient{% else %}New Patient{% endif %}{% endblock %}
@@ -22,20 +22,9 @@
     <div class="form-grid">
 
       <div class="form-group">
-        <label for="patient_id">Patient ID</label>
-        <input type="text" id="patient_id" name="patient_id"
-               value="{{ patient.patient_id if patient else '' }}"
-               {% if patient %}readonly style="opacity:0.5; cursor:not-allowed;"{% endif %}
-               placeholder="e.g. PAT-00123" required />
-        {% if errors.patient_id %}
-          <span class="field-error">{{ errors.patient_id }}</span>
-        {% endif %}
-      </div>
-
-      <div class="form-group">
         <label for="date_of_birth">Date of Birth</label>
         <input type="date" id="date_of_birth" name="date_of_birth"
-               value="{{ patient.date_of_birth if patient else '' }}" />
+               value="{{ patient.date_of_birth if patient else request.form.date_of_birth }}" required/>
         {% if errors.date_of_birth %}
           <span class="field-error">{{ errors.date_of_birth }}</span>
         {% endif %}
@@ -44,7 +33,7 @@
       <div class="form-group">
         <label for="first_name">First Name</label>
         <input type="text" id="first_name" name="first_name"
-               value="{{ patient.first_name if patient else '' }}"
+               value="{{ patient.first_name if patient else request.form.first_name }}"
                placeholder="First name" required />
         {% if errors.first_name %}
           <span class="field-error">{{ errors.first_name }}</span>
@@ -54,7 +43,7 @@
       <div class="form-group">
         <label for="last_name">Last Name</label>
         <input type="text" id="last_name" name="last_name"
-               value="{{ patient.last_name if patient else '' }}"
+               value="{{ patient.last_name if patient else request.form.last_name }}"
                placeholder="Last name" required />
         {% if errors.last_name %}
           <span class="field-error">{{ errors.last_name }}</span>
@@ -64,20 +53,26 @@
       <div class="form-group">
         <label for="email">Email</label>
         <input type="email" id="email" name="email"
-               value="{{ patient.email if patient else '' }}"
+               value="{{ patient.email if patient else request.form.email }}"
                placeholder="patient@example.com" />
         {% if errors.email %}
           <span class="field-error">{{ errors.email }}</span>
+        {% endif %}
+        {% if errors.email_and_phone %}
+          <span class="field-error">{{ errors.email_and_phone }}</span>
         {% endif %}
       </div>
 
       <div class="form-group">
         <label for="phone_number">Phone Number</label>
         <input type="tel" id="phone_number" name="phone_number"
-               value="{{ patient.phone_number if patient else '' }}"
+               value="{{ patient.phone_number if patient else request.form.phone_number }}"
                placeholder="e.g. 555-867-5309" />
         {% if errors.phone_number %}
           <span class="field-error">{{ errors.phone_number }}</span>
+        {% endif %}
+        {% if errors.email_and_phone %}
+          <span class="field-error">{{ errors.email_and_phone }}</span>
         {% endif %}
       </div>
 

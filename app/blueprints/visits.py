@@ -1,8 +1,9 @@
 from flask import Blueprint, request, render_template, redirect, url_for, flash
 from .. import db
 from ..validators import validate_visit, validate_vitals
-from ..models import Visit, Vitals
+from ..models import Visit, Vitals, Provider, Patient
 from sqlalchemy.exc import IntegrityError
+from datetime import datetime
 
 visits_bp = Blueprint("visits", __name__)
 
@@ -14,17 +15,28 @@ def get_visits():
 @visits_bp.route("/new", methods=["GET"])
 def create_visit_form():
     prefill_patient_id = request.args.get("patient_id", "")
-    return render_template("visits/visit_update_form.html", visit=None, errors={}, prefill_patient_id=prefill_patient_id)
+    providers=Provider.query.order_by(Provider.last_name, Provider.first_name).all()
+    patients=Patient.query.order_by(Patient.last_name, Patient.first_name).all()
+    return render_template("visits/visit_update_form.html", visit=None, errors={}, prefill_patient_id=prefill_patient_id, providers=providers, patients=patients)
 
 @visits_bp.route("/create", methods=["POST"])
 def create_visit():
     data=request.form.to_dict()
+    if data.get("visit_date"):
+        data["visit_date"] = datetime.strptime(
+            data["visit_date"],
+            "%Y-%m-%dT%H:%M"
+        )
     errors=validate_visit(data)
     if errors:
-        return render_template("visit/visit_update_form.html", visit=None, errors=errors, prefill_patient_data=""), 422
+        providers=Provider.query.order_by(Provider.last_name, Provider.first_name).all()
+        patients=Patient.query.order_by(Patient.last_name, Patient.first_name).all()
+        return render_template("visits/visit_update_form.html", visit=None, errors=errors, providers=providers, patients=patients), 422
 
     visit = Visit(**{k: v for k, v in data.items() if hasattr(Visit, k) and k != "_method"})
     db.session.add(visit)
+    db.session.flush()
+    visit.visit_num=f"VIS-{visit.visit_id:03d}"
     db.session.commit()
     flash("Created visit record", "success")
     return redirect(url_for("visits.get_visit", visit_id=visit.visit_id))
@@ -33,20 +45,30 @@ def create_visit():
 def get_visit(visit_id):
     visit = db.get_or_404(Visit, visit_id)
     vitals=Vitals.query.filter_by(visit_id=visit_id).order_by(Vitals.created_at).all()
-    return render_template("visits/visit_detail.html", visit=visit, vitals=vitals)
+    providers=Provider.query.order_by(Provider.last_name, Provider.first_name).all()
+    patients=Patient.query.order_by(Patient.last_name, Patient.first_name).all()
+    return render_template("visits/visit_detail.html", visit=visit, providers=providers, patients=patients, vitals=vitals)
 
 @visits_bp.route("/<visit_id>/edit", methods=["GET"])
 def edit_visit_form(visit_id):
     visit = db.get_or_404(Visit, visit_id)
-    return render_template("visits/visit_update_form.html", visit=visit, errors={})
+    providers=Provider.query.order_by(Provider.last_name, Provider.first_name).all()
+    patients=Patient.query.order_by(Patient.last_name, Patient.first_name).all()
+    return render_template("visits/visit_update_form.html", visit=visit, providers=providers, patients=patients, errors={})
 
 @visits_bp.route("/<visit_id>", methods=["POST"])
 def update_visit(visit_id):
     visit=db.get_or_404(Visit, visit_id)
-    data=request.get_json()
+    data=request.form.to_dict()
+    if data.get("visit_date"):
+        data["visit_date"] = datetime.strptime(
+            data["visit_date"],
+            "%Y-%m-%dT%H:%M"
+        )
     errors=validate_visit(data)
     if errors:
-        return render_template("visit/visit_update_form.html", visit=None, errors=errors, prefill_patient_data=""), 422
+        providers=Provider.query.order_by(Provider.last_name, Provider.first_name).all()
+        return render_template("visits/visit_update_form.html", visit=visit, errors=errors, providers=providers), 422
 
     for key, value in data.items():
         if hasattr(visit, key) and key not in ("visit_id", "_method"):
@@ -89,6 +111,8 @@ def record_vitals(visit_id):
 
         vitals = Vitals(**{k: v for k, v in data.items() if hasattr(Vitals, k) and k != "_method"})
         db.session.add(vitals)
+        db.session.flush()
+        vitals.vitals_num=f"VIT-{vitals.vitals_id:03d}"
         db.session.commit()
         flash("Successfully created vitals record.", "success")
         return redirect(url_for("visits.get_visit", visit_id=visit_id))
@@ -99,13 +123,14 @@ def record_vitals(visit_id):
         return render_template("visits/visit_vitals_add_form.html", visit_id=visit_id, errors={}), 500
 
 
-@visits_bp.route("/<visit_id>/vitals/<vital_id>/delete", methods=["POST"])
-def delete_visit_vital(visit_id, vital_id):
-    visit = db.get_or_404(Visit, visit_id)
-    if vital_id not in visit["vitals"]:
+@visits_bp.route("/<visit_id>/vitals/<vitals_id>/delete", methods=["POST"])
+def delete_visit_vital(visit_id, vitals_id):
+    db.get_or_404(Visit, visit_id)
+    vital=Vitals.query.filter_by(vitals_id=vitals_id, visit_id=visit_id).first()
+    if not vital:
         flash("Unable to delete visit vital record. No such vital record for this visit")
         return redirect(url_for("visits.get_visit", visit_id=visit_id)), 409
-    vital=db.get_or_404(Vitals, vital_id)
+    vital=db.get_or_404(Vitals, vitals_id)
     try:
         db.session.delete(vital)
         db.session.commit()

@@ -18,8 +18,14 @@
 
       <div class="form-group">
         <label for="icd_code">ICD Code</label>
-        <input type="text" id="icd_code" name="icd_code"
-               placeholder="e.g. I10, E11.9" required />
+        <select name="icd_code" id="icd_code" required>
+          {% for code in codes %}
+            <option value="{{ code.icd_code }}"
+              {% if diagnosis and code.icd_code == diagnosis.icd_code %}selected{% endif %}>
+              {{ code.icd_code }} - {{ code.description }}
+            </option>
+          {% endfor %}
+        </select>
         {% if errors.icd_code %}
           <span class="field-error">{{ errors.icd_code }}</span>
         {% endif %}
@@ -27,12 +33,12 @@
 
       <div class="form-group">
         <label for="status">Status</label>
-        <select id="status" name="status">
-          <option value="">— Select status —</option>
-          <option value="active">Active</option>
-          <option value="resolved">Resolved</option>
-          <option value="pending">Pending</option>
-          <option value="inactive">Inactive</option>
+        <select id="status" name="status" required>
+          {% set current = diagnosis.status if diagnosis else "" %}
+          <option value="active" {% if current == "active" %}selected{% endif %}>Active</option>
+          <option value="resolved" {% if current == "resolved" %}selected{% endif %}>Resolved</option>
+          <option value="chronic" {% if current == "chronic" %}selected{% endif %}>Chronic</option>
+          <option value="remission" {% if current == "remission" %}selected{% endif %}>Remission</option>
         </select>
         {% if errors.status %}
           <span class="field-error">{{ errors.status }}</span>

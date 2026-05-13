@@ -1,8 +1,12 @@
+import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import event
 from sqlalchemy.engine import Engine
 import sqlite3
+from dotenv import load_dotenv
+
+load_dotenv()
 
 db = SQLAlchemy()
 
@@ -17,6 +21,10 @@ def create_app():
     app=Flask(__name__, instance_relative_config=True)
     app.config["SQLALCHEMY_DATABASE_URI"]="sqlite:///health.db"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"]=False
+    app.config["SECRET_KEY"] = os.getenv(
+        "SECRET_KEY",
+        "dev-secret-key"
+    )
 
     db.init_app(app)
 

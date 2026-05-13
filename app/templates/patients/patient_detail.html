@@ -1,4 +1,4 @@
-{# File Generated with AI #}
+{# File Generated with AI assistance#}
 {% extends "base.html" %}
 {% block title %}{{ patient.first_name }} {{ patient.last_name }} — HealthChart{% endblock %}
 {% block page_title %}Patient Detail{% endblock %}
@@ -112,8 +112,10 @@
           </td>
           <td class="td-mono" style="font-size:0.8rem">{{ dx.created_at }}</td>
           <td>
+            <a href="{{ url_for('patients.update_diagnosis', diagnosis_id=dx.diagnosis_id) }}"
+     class="btn btn-outline btn-sm">Edit</a>
             <form method="POST"
-                  action="{{ url_for('patients.delete_patient_diagnosis', patient_id=patient.patient_id, diagnosis_id=diagnosis_id) }}"
+                  action="{{ url_for('patients.delete_patient_diagnosis', patient_id=patient.patient_id, diagnosis_id=dx.diagnosis_id) }}"
                   style="display:inline">
               <input type="hidden" name="diagnosis_id" value="{{ dx.diagnosis_id }}">
               <button type="submit" class="btn btn-danger btn-sm"

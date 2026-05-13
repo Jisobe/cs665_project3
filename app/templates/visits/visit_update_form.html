@@ -1,4 +1,4 @@
-{# File Generated with AI #}
+{# File Generated with AI assistance #}
 {% extends "base.html" %}
 {% block title %}{% if visit %}Edit Visit{% else %}New Visit{% endif %} — HealthChart{% endblock %}
 {% block page_title %}{% if visit %}Edit Visit{% else %}New Visit{% endif %}{% endblock %}
@@ -17,41 +17,49 @@
 
     <div class="form-grid">
 
-      <div class="form-group">
-        <label for="visit_id">Visit ID</label>
-        <input type="text" id="visit_id" name="visit_id"
-               value="{{ visit.visit_id if visit else '' }}"
-               {% if visit %}readonly style="opacity:0.5; cursor:not-allowed;"{% endif %}
-               placeholder="e.g. VIS-00456" required />
-        {% if errors.visit_id %}
-          <span class="field-error">{{ errors.visit_id }}</span>
-        {% endif %}
-      </div>
+    <div class="form-group">
+      <label for="patient_id">Patient</label>
+      <select name="patient_id" id="patient_id" required>
 
-      <div class="form-group">
-        <label for="patient_id">Patient ID</label>
-        <input type="text" id="patient_id" name="patient_id"
-               value="{{ visit.patient_id if visit else (prefill_patient_id or '') }}"
-               placeholder="e.g. PAT-00123" required />
-        {% if errors.patient_id %}
-          <span class="field-error">{{ errors.patient_id }}</span>
-        {% endif %}
-      </div>
+        {% for patient in patients %}
+          <option value="{{ patient.patient_id }}"
+            {% if visit and patient.patient_id == visit.patient_id %}selected{% endif %}>
+            {{ patient.first_name }} {{ patient.last_name }}
+            (ID: {{ patient.patient_id }})
+          </option>
+        {% endfor %}
 
-      <div class="form-group">
-        <label for="national_provider_identifier">Provider NPI</label>
-        <input type="text" id="national_provider_identifier" name="national_provider_identifier"
-               value="{{ visit.national_provider_identifier if visit else '' }}"
-               placeholder="10-digit NPI" required maxlength="10" />
-        {% if errors.national_provider_identifier %}
-          <span class="field-error">{{ errors.national_provider_identifier }}</span>
-        {% endif %}
-      </div>
+      </select>
+
+      {% if errors.patient_id %}
+        <span class="field-error">{{ errors.patient_id }}</span>
+      {% endif %}
+    </div>
+
+    <div class="form-group">
+      <label for="national_provider_identifier">Provider NPI</label>
+
+      <select name="national_provider_identifier" id="national_provider_identifier" required>
+
+        {% for provider in providers %}
+          <option value="{{ provider.national_provider_identifier }}"
+            {% if visit and provider.national_provider_identifier == visit.national_provider_identifier %}selected{% endif %}>
+            {{ provider.first_name }} {{ provider.last_name }}
+            (NPI: {{ provider.national_provider_identifier }})
+          </option>
+        {% endfor %}
+
+      </select>
+
+      {% if errors.national_provider_identifier %}
+        <span class="field-error">{{ errors.national_provider_identifier }}</span>
+      {% endif %}
+    </div>
 
       <div class="form-group">
         <label for="visit_date">Visit Date & Time</label>
         <input type="datetime-local" id="visit_date" name="visit_date"
-               value="{{ visit.visit_date if visit else '' }}" />
+               value="{{ visit.visit_date if visit else request.form.visit_date }}" />
         {% if errors.visit_date %}
           <span class="field-error">{{ errors.visit_date }}</span>
         {% endif %}
@@ -60,16 +68,16 @@
       <div class="form-group" style="grid-column: 1 / -1;">
         <label for="visit_reason">Reason for Visit</label>
         <textarea id="visit_reason" name="visit_reason"
-                  placeholder="Chief complaint or reason for the visit...">{{ visit.visit_reason if visit else '' }}</textarea>
-        {% if errors.visit_reason %}
-          <span class="field-error">{{ errors.visit_reason }}</span>
+                  placeholder="Chief complaint or reason for the visit...">{{ visit.visit_reason if visit else request.form.visit_reason }}</textarea>
+        {% if errors.reason %}
+          <span class="field-error">{{ errors.reason }}</span>
         {% endif %}
       </div>
 
       <div class="form-group" style="grid-column: 1 / -1;">
         <label for="notes">Notes</label>
         <textarea id="notes" name="notes"
-                  placeholder="Clinical notes, observations...">{{ visit.notes if visit else '' }}</textarea>
+                  placeholder="Clinical notes, observations...">{{ visit.notes if visit else request.form.notes }}</textarea>
         {% if errors.notes %}
           <span class="field-error">{{ errors.notes }}</span>
         {% endif %}

@@ -1,4 +1,4 @@
-{# File Generated with AI #}
+{# File Generated with AI assistance#}
 {% extends "base.html" %}
 {% block title %}Visit {{ visit.visit_id }} — HealthChart{% endblock %}
 {% block page_title %}Visit Detail{% endblock %}
@@ -32,12 +32,26 @@
       <div class="detail-label">Patient</div>
       <div class="detail-value">
         <a href="{{ url_for('patients.get_patient', patient_id=visit.patient_id) }}"
-           style="color: var(--lavender);">{{ visit.patient_id }}</a>
+           style="color: var(--lavender);">
+           {% for patient in patients %}
+              {% if patient.patient_id == visit.patient_id %}
+                {{ patient.first_name }} {{ patient.last_name }}
+                (ID: {{ patient.patient_id }})
+              {% endif %}
+           {% endfor %}
+        </a>
       </div>
     </div>
     <div class="detail-item">
-      <div class="detail-label">Provider NPI</div>
-      <div class="detail-value td-mono">{{ visit.national_provider_identifier }}</div>
+      <div class="detail-label">Provider</div>
+      <div class="detail-value td-mono">
+        {% for provider in providers %}
+          {% if visit and provider.national_provider_identifier == visit.national_provider_identifier %}
+            {{ provider.first_name }} {{ provider.last_name }}
+            (NPI: {{ provider.national_provider_identifier }})
+          {% endif %}
+        {% endfor %}
+      </div>
     </div>
     <div class="detail-item">
       <div class="detail-label">Visit Date</div>
@@ -120,6 +134,15 @@
           <div class="vu">/ 10</div>
         </div>
         {% endif %}
+        <div>
+            <form method="POST"
+                  action="{{ url_for('visits.delete_visit_vital', visit_id=visit.visit_id, vitals_id=v.vitals_id) }}"
+                  style="display:inline">
+              <input type="hidden" name="vitals_id" value="{{ v.vitals_id }}">
+              <button type="submit" class="btn btn-danger btn-sm"
+                      onclick="return confirm('Remove this vitals record?')">Remove</button>
+            </form>
+        </div>
       </div>
     </div>
     {% endfor %}
