@@ -13,7 +13,8 @@ CREATE TABLE icd (
 );
 
 CREATE TABLE patient (
-    patient_id VARCHAR(20) PRIMARY KEY,
+    patient_id INTEGER PRIMARY KEY,
+    patient_num VARCHAR(20) UNIQUE,
     date_of_birth DATE,
     first_name VARCHAR(50),
     last_name VARCHAR(50),
@@ -48,8 +49,9 @@ CREATE TABLE providerStateLicense (
 );
 
 CREATE TABLE visit (
-    visit_id VARCHAR(20) PRIMARY KEY,
-    patient_id VARCHAR(20) NOT NULL,
+    visit_id INTEGER PRIMARY KEY,
+    visit_num VARCHAR(20) UNIQUE,
+    patient_id INTEGER NOT NULL,
     national_provider_identifier VARCHAR(10) NOT NULL,
     visit_date DATETIME,
     visit_reason TEXT,
@@ -61,8 +63,9 @@ CREATE TABLE visit (
 );
 
 CREATE TABLE vitals (
-    vitals_id VARCHAR(20) PRIMARY KEY,
-    visit_id VARCHAR(20) NOT NULL,
+    vitals_id INTEGER PRIMARY KEY,
+    vitals_num VARCHAR(20) UNIQUE,
+    visit_id INTEGER NOT NULL,
     height INT,
     weight FLOAT,
     systolic INT,
@@ -76,8 +79,9 @@ CREATE TABLE vitals (
 );
 
 CREATE TABLE diagnosis (
-    diagnosis_id VARCHAR(20) PRIMARY KEY,
-    patient_id VARCHAR(20) NOT NULL,
+    diagnosis_id INTEGER PRIMARY KEY,
+    diagnosis_num VARCHAR(20) UNIQUE,
+    patient_id INTEGER NOT NULL,
     icd_code VARCHAR(20),
     status VARCHAR(20),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
