@@ -10,7 +10,8 @@ Run the following commands (Requires uv)
 git clone https://github.com/Jisobe/cs665_project3.git
 cd cs665_project3
 cp .env.example .env # Create local .env file
-pip install uv # Install uv
+pip install uv # Install uv in not already
+uv sync # Create .venv if not already created. Update existing .venv
 uv run flask seed # Add seed data
 uv run flask run # Run the app
 ```
@@ -67,6 +68,8 @@ HealthChart is simple application for tracking patient visits, vitals, and diagn
 ```bash
 pip install uv
 ```
+
+A `requirements.txt` file is also provided for virtual environment and dependencies management using pip if preferred.
 
 ### Steps
 
