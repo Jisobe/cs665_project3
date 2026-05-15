@@ -343,11 +343,14 @@ Insertion anomaly: If the icd code is inserted with no description, the tie betw
 
 ## Final Schema
 
+During implementation, it was  difficulty to maintain patient, visit, vitals, and diagnosis with unique ids when adding new records. Doing so would require the person creating the record to attempt adding ids multiple times until an acceptable unique id was identified. Alternatively, each person entering data could be given access to all existing ids which they would then use to find a unique id for the new record. This approach however seems to unnecessarily expose extra data to those who don't necessarily. The best effort approach determined for the final schema was to implement the id for each of the above listed tables as an integer that is able to auto-increment. This id is then used as part of a unique number that offers a more human readable unique identifier. It is acknowledged that the id is not truly used for calculations even though it is an integer. However, being an integer does provide functionality to the usability of the database. The *_num attribute for each table also does not have a NOT NULL constraint that is likely appropriate. When attempting to add this constraint, errors were produced because the *_num column could not be populated without the id field which required the record to exist but the record could not be created without the num field. Attempts were made to address this deficient but no solutions were found in time.
+
 patient Table
 
 | Column | Type | Constraints |
 | --- | --- | --- |
-| patient_id | VARCHAR(20) | PRIMARY KEY |
+| patient_id | INTEGER | PRIMARY KEY |
+| patient_num | VARCHAR(20) | UNIQUE |
 | date_of_birth | DATE | NOT NULL |
 | first_name | VARCHAR(50) | NOT NULL |
 | last_name | VARCHAR(50) | NOT NULL |
@@ -386,8 +389,9 @@ visit Table
 
 | Column | Type | Constraints |
 | --- | --- | --- |
-| visit_id | VARCHAR(20) | PRIMARY KEY |
-| patient_id | VARCHAR(20) | NOT NULL, FK: patient(patient_id) |
+| visit_id | INTEGER | PRIMARY KEY |
+| visit_num | VARCHAR(20) | UNIQUE |
+| patient_id | INTEGER | NOT NULL, FK: patient(patient_id) |
 | national_provider_identifier | VARCHAR(10) | NOT NULL, FK: provider(national_provider_identifier ) |
 | visit_date | DATETIME | NOT NULL |
 | visit_reason | TEXT | NOT NULL |
@@ -399,8 +403,9 @@ vitals table
 
 | Column | Type | Constraints |
 | --- | --- | --- |
-| vitals_id | VARCHAR(20) | PRIMARY KEY |
-| visit_id | VARCHAR(20) | NOT NULL, FK: visit(visit_id) |
+| vitals_id | INTEGER | PRIMARY KEY |
+| vitals_num | VARCHAR(20) | UNIQUE |
+| visit_id | INTEGER | NOT NULL, FK: visit(visit_id) |
 | height | INT | |
 | weight | FLOAT | |
 | systolic | INT | |
@@ -415,8 +420,9 @@ diagnosis Table
 
 | Column | Type | Constraints |
 | --- | --- | --- |
-| diagnosis_id | VARCHAR(20) | PRIMARY KEY |
-| patient_id | VARCHAR(20) | NOT NULL, FK: patient(patient_id) |
+| diagnosis_id | INTEGER | PRIMARY KEY |
+| diagnosis_num | VARCHAR(20) | UNIQUE |
+| patient_id | INTEGER | NOT NULL, FK: patient(patient_id) |
 | icd_code | VARCHAR(20) | NOT NULL, FK: icd(icd_code |
 | status | VARCHAR(20) | NOT NULL |
 | created_at | TIMESTAMP | NOT NULL, DEFAULT CURRENT_TIMESTAMP |

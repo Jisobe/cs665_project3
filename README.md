@@ -55,6 +55,7 @@ HealthChart is simple application for tracking patient visits, vitals, and diagn
 | Database | SQLite (file-based, serverless) |
 | Package manager | uv |
 | Templating | Jinja2 |
+| Styling | CSS |
 
 ## Installation
 
@@ -150,6 +151,7 @@ Create a copy of the `.env.example` file in the project root and name it `.env`.
 # .env
 FLASK_APP=main
 FLASK_DEBUG=1
+SECRET_KEY=super-secret-key
 ```
 
 Then run:
