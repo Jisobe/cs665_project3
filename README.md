@@ -137,7 +137,7 @@ uv run flask --app main seed --reset
 uv run flask --app main run --debug
 ```
 
-The app will be available at http://127.0.0.1:5000 by default. To run the application on a custom port, use the following command
+The app will be available at `http://127.0.0.1:5000` by default. To run the application on a custom port, use the following command
 
 ```bash
 uv run flask --app main run --debug --port 5001
