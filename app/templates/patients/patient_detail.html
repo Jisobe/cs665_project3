@@ -18,7 +18,7 @@
 <div class="page-header">
   <div>
     <h2>{{ patient.first_name }} {{ patient.last_name }}</h2>
-    <div class="subtitle">ID: {{ patient.patient_id }}</div>
+    <div class="subtitle">Patient Number: {{ patient.patient_num }}</div>
   </div>
   <a href="{{ url_for('visits.create_visit_form') }}?patient_id={{ patient.patient_id }}"
      class="btn btn-primary">+ New Visit</a>
@@ -57,7 +57,7 @@
     <table>
       <thead>
         <tr>
-          <th>Visit ID</th>
+          <th>Visit Number</th>
           <th>Date</th>
           <th>Reason</th>
           <th>Provider NPI</th>
@@ -67,7 +67,7 @@
       <tbody>
         {% for visit in visits %}
         <tr>
-          <td class="td-mono">{{ visit.visit_id }}</td>
+          <td class="td-mono">{{ visit.visit_num }}</td>
           <td class="td-mono">{{ visit.visit_date or '—' }}</td>
           <td>{{ visit.visit_reason or '—' }}</td>
           <td class="td-mono">{{ visit.national_provider_identifier }}</td>
